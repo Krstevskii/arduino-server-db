@@ -80,7 +80,7 @@ app.post('/start_bike_user', (req, res) => {
 
         embg: req.body.embg,
         bike_id: req.body.bike_id,
-        startTime: moment().tz('Europe/Sarajevo').format(),
+        startTime: new Date(moment().tz('Europe/Sarajevo').format()),
         longitude: req.body.longitude / Math.pow(10, 6),
         latitude: req.body.latitude / Math.pow(10, 6)
 
