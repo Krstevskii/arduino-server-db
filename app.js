@@ -43,7 +43,7 @@ app.post('/pay', (req, res) => {
 
     CBike.findOne({embg: req.body.embg})
         .then(cuser => {
-            cuser.embg = Pay.end;
+            cuser.embg = Pay.extra;
             res.send(Pay);
         })
         .catch(err => {
