@@ -47,7 +47,7 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="gitignore" value="12" />
-          <entry key="js" value="5138" />
+          <entry key="js" value="5146" />
           <entry key="json" value="25" />
           <entry key="yaml" value="48" />
         </counts>
@@ -55,7 +55,7 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="JSON" value="25" />
-          <entry key="JavaScript" value="5138" />
+          <entry key="JavaScript" value="5146" />
           <entry key="PLAIN_TEXT" value="12" />
           <entry key="YAML" value="48" />
         </counts>
@@ -69,8 +69,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="40" column="34" selection-start-line="40" selection-start-column="34" selection-end-line="40" selection-end-column="34" />
+            <state relative-caret-position="-756">
+              <caret line="45" column="38" selection-start-line="45" selection-start-column="38" selection-end-line="45" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -238,12 +238,12 @@
       <workItem from="1537215779810" duration="2251000" />
       <workItem from="1537271130040" duration="968000" />
       <workItem from="1537792228361" duration="12000" />
-      <workItem from="1537963054780" duration="5405000" />
+      <workItem from="1537963054780" duration="5690000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="86650000" />
+    <option name="totallyTimeSpent" value="86935000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -344,8 +344,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="40" column="34" selection-start-line="40" selection-start-column="34" selection-end-line="40" selection-end-column="34" />
+        <state relative-caret-position="-756">
+          <caret line="45" column="38" selection-start-line="45" selection-start-column="38" selection-end-line="45" selection-end-column="38" />
         </state>
       </provider>
     </entry>
