@@ -39,14 +39,15 @@ app.post('/pay', (req, res) => {
 
         embg: req.body.embg,
         pay_part1: req.body.extra,
-        end: req.body.stop_sign
-
     };
 
     CBike.findOne({embg: req.body.embg})
         .then(cuser => {
             cuser.embg = Pay.end;
             res.send(Pay);
+        })
+        .catch(err => {
+            res.send(err);
         });
 
 });
