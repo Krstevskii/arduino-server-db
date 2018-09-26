@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
         '<html>\n' +
         '<body>\n' +
         '\n' +
-        '<h1>My First Heading</h1>\n' +
+        '<h1>Smart Bike</h1>\n' +
         '\n' +
         '</body>\n' +
         '</html>\n');
@@ -41,7 +41,13 @@ app.post('/pay', (req, res) => {
         pay_part1: req.body.extra,
         end: req.body.stop_sign
 
-    }
+    };
+
+    CBike.findOne({embg: req.body.embg})
+        .then(cuser => {
+            cuser.embg = Pay.end;
+            res.send(Pay);
+        });
 
 });
 
@@ -74,8 +80,6 @@ app.post('/start_bike_user', (req, res) => {
 
     };
 
-    console.log(BuildUserBikeModel.longitude + " " + BuildUserBikeModel.latitude);
-
     CBike.findOne({embg: BuildUserBikeModel.embg})
         .then(result => {
            if(result === null){
@@ -100,13 +104,16 @@ app.post('/find_user', (req, res) => {
     if((embg.length - 1) === 13) {
         User.findOne({embg: `${embg}`}, (err, user) => {
             if(user !== null){
-                res.send("[1]");
+                if(user.credits >= 50)
+                    res.send("[1]");
+                else
+                    res.send('The user has insufficent credits');
             }else{
-                res.send("[0]");
+                res.send("The User doesn't exist");
             }
         });
     }else{
-        res.send("[0]");
+        res.send("Invalid embg");
     }
 
 });
