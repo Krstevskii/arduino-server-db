@@ -22,9 +22,29 @@ const CBike = mongoose.model('current_bike');
 
 app.get('/', (req, res) => {
 
-    res.send('Hello World!');
+    res.send('<!DOCTYPE html>\n' +
+        '<html>\n' +
+        '<body>\n' +
+        '\n' +
+        '<h1>My First Heading</h1>\n' +
+        '\n' +
+        '</body>\n' +
+        '</html>\n');
 
 });
+
+app.post('/pay', (req, res) => {
+
+    const Pay = {
+
+        embg: req.body.embg,
+        pay_part1: req.body.extra,
+        end: req.body.stop_sign
+
+    }
+
+});
+
 app.post('/update_bike_user', (req, res) => {
 
     let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
