@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const port = process.env.PORT || 4000;
 
@@ -79,7 +80,7 @@ app.post('/start_bike_user', (req, res) => {
 
         embg: req.body.embg,
         bike_id: req.body.bike_id,
-        startTime: Date.now(),
+        startTime: moment(),
         longitude: req.body.longitude / Math.pow(10, 6),
         latitude: req.body.latitude / Math.pow(10, 6)
 
@@ -113,7 +114,7 @@ app.post('/find_user', (req, res) => {
                     res.send("[1]");
                 else
                     res.send('The user has insufficent credits');
-            }else{
+            } else {
                 res.send("The User doesn't exist");
             }
         });
