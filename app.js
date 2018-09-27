@@ -44,11 +44,7 @@ app.post('/pay', (req, res) => {
 
     CBike.findOne({embg: req.body.embg})
         .then(cuser => {
-            cuser.embg = Pay.pay_part1;
-            cuser.save()
-                .then(super_user => {
-                    res.send(Pay);
-            });
+            console.log(Pay.pay_part1);
 
         })
         .catch(err => {
