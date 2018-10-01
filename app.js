@@ -68,7 +68,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                                 .then(user => {
                                     user.credits = user.credits - finalPrice;
                                     user.save()
-                                        .then("The price of the user has been deducted")
+                                        .then(user => res.send("The price of the user has been deducted"));
                                         .catch(err => console.log(err));
 
                                 })
