@@ -53,7 +53,26 @@ app.post('/pay', ensureEndString, (req, res) => {
             cuser
                 .save()
                 .then(endUser => {
-                    res.send('The User Has Terminated');
+
+                            const payTimeDifference = moment.utc(moment(endUser.endTime,"DD/MM/YYYY HH:mm:ss").diff(moment(endUser.startTime,"DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss");
+                            timeHMSArray = payTimeDifference.split(':');
+
+                            for(let i = 0; i<timeHMSArray.length; i++){
+                                timeHMSArray[i] = parseInt(timeHMSArray[i]) / Math.pow(60, i);
+                            }
+
+                            const totalTime = timeHMSArray.reduce((total, current) => total + current) * 30;
+                            const finalPrice = totalTime + parseInt(Pay.pay_part1);
+
+                            User.findOne({embg: Pay.embg})
+                                .then(user => {
+                                    user.credits = user.credits - finalPrice;
+                                    user.save()
+                                        .then("The price of the user has been deducted")
+                                        .catch(err => console.log(err));
+
+                                })
+                                .catch(err => console.log(err));
                 });
         })
         .catch(err => {
