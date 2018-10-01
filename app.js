@@ -48,7 +48,7 @@ app.post('/pay', ensureEndString, (req, res) => {
 
     CBike.findOne({embg: Pay.embg})
         .then(cuser => {
-            cuser.endDate = Date.now();
+            cuser.endTime = Date.now();
 
             cuser
                 .save()
