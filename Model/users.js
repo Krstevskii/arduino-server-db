@@ -6,6 +6,7 @@ const UsersSchema = new Schema({
 
     embg: {
         type: String,
+        unique: true,
         required: true
     },
 

@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
+const bcrypt = require('bcryptjs');
 
 const port = process.env.PORT || 4000;
 
@@ -16,6 +17,9 @@ app.use(bodyParser.json());
 // Load Model Users
 require('./Model/users');
 const User = mongoose.model('user');
+
+// Load EndStringCheckup
+const ensureEndString = require('./config/endStrings');
 
 // Load Model Current Bike
 require('./Model/current_bike');
@@ -34,7 +38,7 @@ app.get('/', (req, res) => {
 
 });
 
-app.post('/pay', (req, res) => {
+app.post('/pay', ensureEndString, (req, res) => {
 
     const Pay = {
 
@@ -42,23 +46,26 @@ app.post('/pay', (req, res) => {
         pay_part1: req.body.extra,
     };
 
-    CBike.findOne({embg: req.body.embg})
+    CBike.findOne({embg: Pay.embg})
         .then(cuser => {
-            console.log(Pay.pay_part1);
+            cuser.endDate = Date.now();
 
+            cuser
+                .save()
+                .then(endUser => {
+                    res.send('The User Has Terminated');
+                });
         })
         .catch(err => {
             res.send(err);
         });
-
 });
 
-app.post('/update_bike_user', (req, res) => {
+app.post('/update_bike_user', ensureEndString, (req, res) => {
 
     let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
     let longitudeUpdate = req.body.longitude / Math.pow(10, 6);
     let embg = req.body.embg;
-
 
     CBike.updateOne({embg: embg},
         {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate} })
@@ -70,7 +77,8 @@ app.post('/update_bike_user', (req, res) => {
         .catch(err => console.log(err));
 
 });
-app.post('/start_bike_user', (req, res) => {
+
+app.post('/start_bike_user', ensureEndString, (req, res) => {
 
     const BuildUserBikeModel = {
 
@@ -81,8 +89,6 @@ app.post('/start_bike_user', (req, res) => {
         latitude: req.body.latitude / Math.pow(10, 6)
 
     };
-
-
 
     CBike.findOne({embg: BuildUserBikeModel.embg})
         .then(result => {
@@ -99,13 +105,12 @@ app.post('/start_bike_user', (req, res) => {
         });
 });
 
-app.post('/find_user', (req, res) => {
+app.post('/find_user', ensureEndString, (req, res) => {
 
     let embg = req.body.embg;
-    embg = embg.substring(0, embg.length - 2);
-    console.log("embg=" + embg);
+    console.log(embg);
 
-    if((embg.length - 1) === 13) {
+    if(embg.length === 13) {
         User.findOne({embg: `${embg}`}, (err, user) => {
             if(user !== null){
                 if(user.credits >= 50)
@@ -119,8 +124,27 @@ app.post('/find_user', (req, res) => {
     }else{
         res.send("Invalid embg");
     }
+});
+
+
+app.post('/save_user', ensureEndString,  (req, res) => {
+
+    const newUser = {
+        embg: req.body.embg,
+        name: req.body.firstname,
+        lastname:  req.body.lastname,
+        credits: req.body.credits,
+    };
+
+    new User(newUser)
+        .save()
+        .then(user => {res.send(user);})
+        .catch(err => console.log(err));
+
+
 
 });
+
 //gcloud app logs tail -s default
 app.get('/get_all', (req, res) => {
 
@@ -129,6 +153,5 @@ app.get('/get_all', (req, res) => {
     });
 
 });
-
 
 app.listen(port, () => console.log(`Serving forever on port ${port}...`));
