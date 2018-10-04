@@ -73,8 +73,9 @@ app.post('/pay', ensureEndString, (req, res) => {
                                     user.credits = user.credits - finalPrice;
                                     CBike.findOne({embg: user.embg}, {_id: 0, __v: 0})
                                         .then(mainUser => {
-                                            console.log(mainUser);
-                                            new PastBike(mainUser)
+                                            const SaveUser = mainUser;
+                                            console.log(SaveUser);
+                                            new PastBike(SaveUser)
                                                 .save()
                                                 .then(userToDelete => {
                                                     CBike.remove({embg: userToDelete.embg})
