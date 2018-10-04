@@ -33,6 +33,6 @@ const pastBikeSchema = new Schema({
         required: true
     }
 
-});
+}, { versionKey: false });
 
 mongoose.model('past_bike', pastBikeSchema);

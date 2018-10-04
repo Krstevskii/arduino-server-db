@@ -58,59 +58,46 @@ app.post('/pay', ensureEndString, (req, res) => {
                 .save()
                 .then(endUser => {
 
-                    const payTimeDifference = moment.utc(moment(endUser.endTime,"DD/MM/YYYY HH:mm:ss").diff(moment(endUser.startTime,"DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss");
-                           timeHMSArray = payTimeDifference.split(':');
+                    const payTimeDifference = moment.utc(moment(endUser.endTime, "DD/MM/YYYY HH:mm:ss").diff(moment(endUser.startTime, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss");
+                    timeHMSArray = payTimeDifference.split(':');
 
-                            for(let i = 0; i<timeHMSArray.length; i++){
-                                timeHMSArray[i] = parseInt(timeHMSArray[i]) / Math.pow(60, i);
-                            }
+                    for (let i = 0; i < timeHMSArray.length; i++) {
+                        timeHMSArray[i] = parseInt(timeHMSArray[i]) / Math.pow(60, i);
+                    }
 
-                            const totalTime = timeHMSArray.reduce((total, current) => total + current) * 30;
-                            const finalPrice = totalTime + parseInt(Pay.pay_part1);
+                    const totalTime = timeHMSArray.reduce((total, current) => total + current) * 30;
+                    const finalPrice = totalTime + parseInt(Pay.pay_part1);
 
-                            User.findOne({embg: endUser.embg})
+                    User.findOne({embg: endUser.embg})
+                        .then(user => {
+                            user.credits = user.credits - finalPrice;
+                            user.save()
                                 .then(user => {
-                                    user.credits = user.credits - finalPrice;
-                                    CBike.findOne({embg: user.embg}, {_id: 0, __v: 0})
-                                        .then(mainUser => {
-                                            const SaveUser = mainUser;
-                                            console.log(SaveUser);
-                                            new PastBike(SaveUser)
+                                    // res.send('The price has been deducted');
+                                    CBike.findOne({embg: user.embg}, {_id: 0})
+                                        .then(user => {
+                                            console.log(user);
+                                            const newUserToPermSave = {
+                                                embg: user.embg,
+                                                bike_id: user.bike_id,
+                                                startTime: user.startTime,
+                                                longitude: user.longitude,
+                                                latitude: user.latitude,
+                                                endTime: user.endTime
+                                            };
+                                            new PastBike(newUserToPermSave)
                                                 .save()
-                                                .then(userToDelete => {
-                                                    CBike.remove({embg: userToDelete.embg})
-                                                        .then(() => res.send("The user has been saved as past and deleted as current"))
-                                                });
-                                        });
-                                });
-                            // User.findOne({embg: Pay.embg})
-                            //     .then(user => {
-                            //         user.credits = user.credits - finalPrice;
-                            //         user.save()
-                            //             .then(user => {
-                            //                 CBike.findOne({embg: user.embg})
-                            //                     .then(mainUser => {
-                            //                         console.log(mainUser);
-                            //                         new PastBike(mainUser)
-                            //                             .save()
-                            //                             .then(deleteUser => {
-                            //                                 CBike.remove({embg: deleteUser.embg}, {justOne: true})
-                            //                                     .then(unimportant_user => res.send('The User has been saved from the current bikes'));
-                            //                             })
-                            //                             .catch((err) => console.log(err));
-                            //
-                            //                     })
-                            //                     .catch(err => console.log(err));
-                            //
-                            //             });
-                            //
-                            //     })
-                            //     .catch(err => console.log(err));
-                });
+                                                .then(() => res.send("The price has been deducted from the user"))
+                                                .catch(err => console.log(err));
+                                        })
+                                })
+                                .catch(() => console.log('The user has not been saved'));
+                        })
+                        .catch(() => console.log(`The user doesn't exist`));
 
+                });
         });
 });
-
 app.post('/update_bike_user', ensureEndString, (req, res) => {
 
     let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
@@ -121,8 +108,8 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
         {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate} })
         .then((result) => {
 
-            console.log(result);
             res.send("Map is Updated");
+
         })
         .catch(err => console.log(err));
 
