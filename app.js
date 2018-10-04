@@ -75,7 +75,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                                         .then(user => {
                                             CBike.findOne({embg: user.embg})
                                                 .then(mainUser => {
-                                                    console.log(user);
+                                                    console.log(mainUser);
                                                     new PastBike(mainUser)
                                                         .save()
                                                         .then(deleteUser => {
