@@ -74,7 +74,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                                     user.save()
                                         .then(user => {
 
-                                            CBike.findOne({embg: user.email})
+                                            CBike.findOne({embg: user.embg})
                                                 .then(mainUser => {
                                                     new PastBike(mainUser)
                                                         .save()
@@ -86,7 +86,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                                                 })
                                                 .catch(err => console.log(err));
 
-                                        })
+                                        });
 
                                 })
                                 .catch(err => console.log(err));
