@@ -71,8 +71,6 @@ app.post('/pay', ensureEndString, (req, res) => {
                             User.findOne({embg: endUser.embg})
                                 .then(user => {
                                     user.credits = user.credits - finalPrice;
-                                })
-                                .then(user => {
                                     CBike.findOne({embg: user.embg}, {_id: 0, __v: 0})
                                         .then(mainUser => {
                                             console.log(mainUser);
