@@ -68,29 +68,49 @@ app.post('/pay', ensureEndString, (req, res) => {
                             const totalTime = timeHMSArray.reduce((total, current) => total + current) * 30;
                             const finalPrice = totalTime + parseInt(Pay.pay_part1);
 
-                            User.findOne({embg: Pay.embg})
+                            User.findOne({embg: endUser.embg})
                                 .then(user => {
                                     user.credits = user.credits - finalPrice;
-                                    user.save()
-                                        .then(user => {
-                                            CBike.findOne({embg: user.embg})
-                                                .then(mainUser => {
-                                                    console.log(mainUser);
-                                                    new PastBike(mainUser)
-                                                        .save()
-                                                        .then(deleteUser => {
-                                                            CBike.remove({embg: deleteUser.embg}, {justOne: true})
-                                                                .then(unimportant_user => res.send('The User has been saved from the current bikes'));
-                                                        })
-                                                        .catch((err) => console.log(err));
-
+                                })
+                                .then(user => {
+                                    CBike.findOne({embg: user.embg}, {_id: 0, __v: 0})
+                                        .then(mainUser => {
+                                            console.log(mainUser);
+                                            new PastBike(mainUser)
+                                                .save()
+                                                .then(userToDelete => {
+                                                    CBike.remove({embg: userToDelete.embg})
+                                                        .then(() => res.send("The user has been saved as past and deleted as current"))
                                                 })
                                                 .catch(err => console.log(err));
-
-                                        });
-
+                                        })
+                                        .catch(err => console.log(err));
                                 })
-                                .catch(err => console.log(err));
+                                .catch(() => console.log("The user doesn't exist"));
+
+                            // User.findOne({embg: Pay.embg})
+                            //     .then(user => {
+                            //         user.credits = user.credits - finalPrice;
+                            //         user.save()
+                            //             .then(user => {
+                            //                 CBike.findOne({embg: user.embg})
+                            //                     .then(mainUser => {
+                            //                         console.log(mainUser);
+                            //                         new PastBike(mainUser)
+                            //                             .save()
+                            //                             .then(deleteUser => {
+                            //                                 CBike.remove({embg: deleteUser.embg}, {justOne: true})
+                            //                                     .then(unimportant_user => res.send('The User has been saved from the current bikes'));
+                            //                             })
+                            //                             .catch((err) => console.log(err));
+                            //
+                            //                     })
+                            //                     .catch(err => console.log(err));
+                            //
+                            //             });
+                            //
+                            //     })
+                            //     .catch(err => console.log(err));
                 });
         })
         .catch(err => {
