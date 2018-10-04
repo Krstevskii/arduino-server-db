@@ -18,6 +18,10 @@ app.use(bodyParser.json());
 require('./Model/users');
 const User = mongoose.model('user');
 
+// Load Model Past Bikes
+require('./Model/past_bike_users');
+const PastBike = mongoose.model('past_bike');
+
 // Load EndStringCheckup
 const ensureEndString = require('./config/endStrings');
 
@@ -68,7 +72,16 @@ app.post('/pay', ensureEndString, (req, res) => {
                                 .then(user => {
                                     user.credits = user.credits - finalPrice;
                                     user.save()
-                                        .then(user => res.send("The price of the user has been deducted"))
+                                        .then(user => {
+                                            res.send("The price of the user has been deducted");
+                                            new PastBike(user)
+                                                .save()
+                                                .then(deleteUser => {
+                                                   CBike.remove({embg: deleteUser.embg}, {justOne: true})
+                                                       .then(() => res.send('The User has been deleted from the current bikes'));
+                                                });
+
+                                        })
                                         .catch(err => console.log(err));
 
                                 })
