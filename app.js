@@ -81,13 +81,9 @@ app.post('/pay', ensureEndString, (req, res) => {
                                                 .then(userToDelete => {
                                                     CBike.remove({embg: userToDelete.embg})
                                                         .then(() => res.send("The user has been saved as past and deleted as current"))
-                                                })
-                                                .catch(err => console.log(err));
-                                        })
-                                        .catch(err => console.log(err));
-                                })
-                                .catch(() => console.log("The user doesn't exist"));
-
+                                                });
+                                        });
+                                });
                             // User.findOne({embg: Pay.embg})
                             //     .then(user => {
                             //         user.credits = user.credits - finalPrice;
@@ -111,11 +107,8 @@ app.post('/pay', ensureEndString, (req, res) => {
                             //
                             //     })
                             //     .catch(err => console.log(err));
-                })
-                .catch(err => console.log(err));
-        })
-        .catch(err => {
-            res.send(err);
+                });
+
         });
 });
 
