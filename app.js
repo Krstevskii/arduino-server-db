@@ -73,12 +73,11 @@ app.post('/pay', ensureEndString, (req, res) => {
                                     user.credits = user.credits - finalPrice;
                                     user.save()
                                         .then(user => {
-                                            res.send("The price of the user has been deducted");
                                             new PastBike(user)
                                                 .save()
                                                 .then(deleteUser => {
                                                    CBike.remove({embg: deleteUser.embg}, {justOne: true})
-                                                       .then(() => res.send('The User has been deleted from the current bikes'));
+                                                       .then(() => res.send('The User has been saved from the current bikes'));
                                                 });
 
                                         })
