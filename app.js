@@ -95,7 +95,7 @@ app.post('/pay', ensureEndString, (req, res) => {
 
                                                 })
                                                 .catch(err => console.log(err));
-                                        })
+                                        });
                                 })
                                 .catch(() => console.log('The user has not been saved'));
                         })

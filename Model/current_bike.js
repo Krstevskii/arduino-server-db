@@ -5,6 +5,7 @@ const currentBikeSchema = new Schema({
 
     embg: {
         type: String,
+        unique: true,
         required: true
     },
 
