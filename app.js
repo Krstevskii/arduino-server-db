@@ -87,7 +87,13 @@ app.post('/pay', ensureEndString, (req, res) => {
                                             };
                                             new PastBike(newUserToPermSave)
                                                 .save()
-                                                .then(() => res.send("The price has been deducted from the user"))
+                                                .then(user => {
+
+                                                    CBike.remove({embg: user.embg}, {justOne: true})
+                                                        .then(() => res.send('The price has been deducted'))
+                                                        .catch(err => console.log(err));
+
+                                                })
                                                 .catch(err => console.log(err));
                                         })
                                 })
