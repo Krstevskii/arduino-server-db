@@ -58,8 +58,8 @@ app.post('/pay', ensureEndString, (req, res) => {
                 .save()
                 .then(endUser => {
 
-                            const payTimeDifference = moment.utc(moment(endUser.endTime,"DD/MM/YYYY HH:mm:ss").diff(moment(endUser.startTime,"DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss");
-                            timeHMSArray = payTimeDifference.split(':');
+                    const payTimeDifference = moment.utc(moment(endUser.endTime,"DD/MM/YYYY HH:mm:ss").diff(moment(endUser.startTime,"DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss");
+                           timeHMSArray = payTimeDifference.split(':');
 
                             for(let i = 0; i<timeHMSArray.length; i++){
                                 timeHMSArray[i] = parseInt(timeHMSArray[i]) / Math.pow(60, i);
@@ -111,7 +111,8 @@ app.post('/pay', ensureEndString, (req, res) => {
                             //
                             //     })
                             //     .catch(err => console.log(err));
-                });
+                })
+                .catch(err => console.log(err));
         })
         .catch(err => {
             res.send(err);
