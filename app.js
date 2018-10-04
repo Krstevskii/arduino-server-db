@@ -77,7 +77,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                                                 .save()
                                                 .then(deleteUser => {
                                                    CBike.remove({embg: deleteUser.embg}, {justOne: true})
-                                                       .then(() => res.send('The User has been saved from the current bikes'));
+                                                       .then(unimportant_user => res.send('The User has been saved from the current bikes'));
                                                 });
 
                                         })
