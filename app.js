@@ -89,7 +89,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                                                 .save()
                                                 .then(user => {
 
-                                                    CBike.remove({embg: user.embg}, {justOne: true})
+                                                    CBike.remove({embg: user.embg})
                                                         .then(() => res.send('The price has been deducted'))
                                                         .catch(err => console.log(err));
 
