@@ -73,7 +73,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                                     user.credits = user.credits - finalPrice;
                                     user.save()
                                         .then(user => {
-
+                                        console.log(user);
                                             CBike.findOne({embg: user.embg})
                                                 .then(mainUser => {
                                                     new PastBike(mainUser)
@@ -81,7 +81,8 @@ app.post('/pay', ensureEndString, (req, res) => {
                                                         .then(deleteUser => {
                                                             CBike.remove({embg: deleteUser.embg}, {justOne: true})
                                                                 .then(unimportant_user => res.send('The User has been saved from the current bikes'));
-                                                        });
+                                                        })
+                                                        .catch((err) => console.log(err));
 
                                                 })
                                                 .catch(err => console.log(err));
