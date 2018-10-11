@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
-const bcrypt = require('bcryptjs');
 
 const port = process.env.PORT || 4000;
 
@@ -65,7 +64,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                         timeHMSArray[i] = parseInt(timeHMSArray[i]) / Math.pow(60, i);
                     }
 
-                    const totalTime = timeHMSArray.reduce((total, current) => total + current) * 30;
+                    const totalTime = Math.ceil(timeHMSArray.reduce((total, current) => total + current)) * 30;
                     const finalPrice = totalTime + parseInt(Pay.pay_part1);
 
                     User.findOne({embg: endUser.embg})
