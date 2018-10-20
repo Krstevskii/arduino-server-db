@@ -6,7 +6,7 @@ const moment = require('moment-timezone');
 
 const port = process.env.PORT || 4000;
 
-mongoose.connect('mongodb://krstevskii:krstevski14@ds141872.mlab.com:41872/users-nfc', {useNewUrlParser: true})
+mongoose.connect('mongodb+srv://krstevskii:imwIqflnyK6YEWuP@arduino-express-nfc-lv454.mongodb.net/test?retryWrites=true', {useNewUrlParser: true})
     .then(() => console.log('MongoDB connected...'))
     .catch(err => console.log(err));
 
