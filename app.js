@@ -121,11 +121,12 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
 
 app.post('/start_bike_user', ensureEndString, (req, res) => {
 
+    console.log(req.body);
+
     const BuildUserBikeModel = {
 
         embg: req.body.embg,
         bike_id: req.body.bike_id,
-        startTime: Date.parse(moment().tz('Europe/Sarajevo').format()),
         longitude: req.body.longitude / Math.pow(10, 6),
         latitude: req.body.latitude / Math.pow(10, 6)
 
@@ -133,12 +134,11 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
 
     CBike.findOne({embg: BuildUserBikeModel.embg})
         .then(result => {
-            if (result === null) {
-
+            if (!result) {
                 new CBike(BuildUserBikeModel)
                     .save()
-                    .then(bikeUserModel => res.send(JSON.stringify(bikeUserModel)))
-                    .catch(err => console.log(err));
+                    .then(bikeUserModel => res.send("The bike has started"))
+                    .catch(err => res.status(503).send("An error occurred"));
 
             } else {
                 res.send('The user has already started the bike');
@@ -161,7 +161,7 @@ app.post('/find_user', ensureEndString, (req, res) => {
                 else
                     res.send("The user has insufficent credits");
             })
-            .catch(err => res.send(err));
+            .catch(err => res.status(503).send("An error occurred"));
     } else {
         res.send("Invalid embg");
     }

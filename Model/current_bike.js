@@ -16,7 +16,8 @@ const currentBikeSchema = new Schema({
 
     startTime: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now
     },
 
     endTime: {
