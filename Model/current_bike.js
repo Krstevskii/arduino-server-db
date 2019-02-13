@@ -34,6 +34,7 @@ const currentBikeSchema = new Schema({
         required: true
     }
 
-}, {versionKey: false});
+}
+);
 
 mongoose.model('current_bike', currentBikeSchema);

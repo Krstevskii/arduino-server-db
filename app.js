@@ -110,14 +110,13 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
     let embg = req.body.embg;
 
     CBike.updateOne({embg: embg},
-        {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate} })
+        {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}})
         .then((result) => {
 
             res.send("Map is Updated");
-
         })
-        .catch(err => console.log(err));
 
+        .catch(err => console.log(err));
 });
 
 app.post('/start_bike_user', ensureEndString, (req, res) => {
@@ -134,64 +133,63 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
 
     CBike.findOne({embg: BuildUserBikeModel.embg})
         .then(result => {
-           if(result === null){
+            if (result === null) {
 
-               new CBike(BuildUserBikeModel)
-                   .save()
-                   .then(bikeUserModel => res.send(JSON.stringify(bikeUserModel)))
-                   .catch(err => console.log(err));
+                new CBike(BuildUserBikeModel)
+                    .save()
+                    .then(bikeUserModel => res.send(JSON.stringify(bikeUserModel)))
+                    .catch(err => console.log(err));
 
-           }else{
-               res.send('The user has already started the bike');
-           }
+            } else {
+                res.send('The user has already started the bike');
+            }
         });
 });
 
 app.post('/find_user', ensureEndString, (req, res) => {
 
     let embg = req.body.embg;
-    console.log(embg);
+    console.log(typeof embg);
 
-    if(embg.length === 13) {
-        User.findOne({embg: `${embg}`}, (err, user) => {
-            if(user !== null){
-                if(user.credits >= 50)
+    if (embg.length === 13) {
+        User.findOne({embg: `${embg}`})
+            .then(user => {
+                if (!user) return res.status(404).send('The User does not exist');
+
+                if (user.credits >= 50)
                     res.send("[1]");
                 else
-                    res.send('The user has insufficent credits');
-            } else {
-                res.send("The User doesn't exist");
-            }
-        });
-    }else{
+                    res.send("The user has insufficent credits");
+            })
+            .catch(err => res.send(err));
+    } else {
         res.send("Invalid embg");
     }
 });
 
 
-app.post('/save_user', ensureEndString,  (req, res) => {
+app.post('/save_user', ensureEndString, (req, res) => {
 
     const newUser = {
         embg: req.body.embg,
         name: req.body.firstname,
-        lastname:  req.body.lastname,
+        lastname: req.body.lastname,
         credits: req.body.credits,
     };
 
     new User(newUser)
         .save()
-        .then(user => {res.send(user);})
+        .then(user => {
+            res.send(user);
+        })
         .catch(err => console.log(err));
-
-
 
 });
 
-//gcloud app logs tail -s default
 app.get('/get_all', (req, res) => {
 
     User.find({}).then(idea => {
-       res.send(JSON.stringify(idea));
+        res.send(JSON.stringify(idea));
     });
 
 });
