@@ -31,6 +31,11 @@ const pastBikeSchema = new Schema({
     latitude: {
         type: [Number],
         required: true
+    },
+
+    onStation: {
+        type: Boolean,
+        required: true
     }
 
 });

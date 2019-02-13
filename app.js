@@ -44,7 +44,6 @@ app.get('/', (req, res) => {
 app.post('/pay', ensureEndString, (req, res) => {
 
     const Pay = {
-
         embg: req.body.embg,
         pay_part1: req.body.extra,
     };
@@ -109,19 +108,14 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
     let longitudeUpdate = req.body.longitude / Math.pow(10, 6);
     let embg = req.body.embg;
 
-    CBike.updateOne({embg: embg},
+    CBike.updateOne(
+        {embg: embg},
         {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}})
-        .then((result) => {
-
-            res.send("Map is Updated");
-        })
-
-        .catch(err => console.log(err));
+        .then(result => res.send("Map is Updated"))
+        .catch(err => res.status(503).send("An error occurred"));
 });
 
 app.post('/start_bike_user', ensureEndString, (req, res) => {
-
-    console.log(req.body);
 
     const BuildUserBikeModel = {
 
@@ -132,7 +126,7 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
 
     };
 
-    CBike.findOne({embg: BuildUserBikeModel.embg})
+    CBike.findOne({bike_id: BuildUserBikeModel.bike_id})
         .then(result => {
             if (!result) {
                 new CBike(BuildUserBikeModel)
@@ -141,7 +135,10 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
                     .catch(err => res.status(503).send("An error occurred"));
 
             } else {
-                res.send('The user has already started the bike');
+                if( result.embg === BuildUserBikeModel.embg )
+                    res.send('The user has already started the bike');
+                else
+                    res.send('Another user already uses the bike');
             }
         });
 });
@@ -149,7 +146,6 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
 app.post('/find_user', ensureEndString, (req, res) => {
 
     let embg = req.body.embg;
-    console.log(typeof embg);
 
     if (embg.length === 13) {
         User.findOne({embg: `${embg}`})
@@ -159,7 +155,7 @@ app.post('/find_user', ensureEndString, (req, res) => {
                 if (user.credits >= 50)
                     res.send("[1]");
                 else
-                    res.send("The user has insufficent credits");
+                    res.send("The user has insufficient credits");
             })
             .catch(err => res.status(503).send("An error occurred"));
     } else {
