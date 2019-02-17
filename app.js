@@ -76,66 +76,67 @@ app.post('/pay', ensureEndString, (req, res) => {
                                     CBike.deleteOne({embg: Pay.embg, bike_id: Pay.bike_id})
                                         .then(cbike => res.send("The user has ended the bike session"))
                                         .catch(err => res.send("An error occurred"));
+                                })
+                                .catch(err => res.status(503).send("An error occurred"));
                         })
                         .catch(err => res.status(503).send("An error occurred"));
                 })
-                .catch(err => res.status(503).send("An error occurred"));
-        })
-        .catch(err => res.status(503).send('An error occurred'));
+                .catch(err => res.status(503).send('An error occurred'));
 
-    // CBike.findOne({embg: Pay.embg})
-    //     .then(cuser => {
-    //         cuser.endTime = Date.now();
-    //
-    //         cuser
-    //             .save()
-    //             .then(endUser => {
-    //
-    //                 const payTimeDifference = moment.utc(moment(endUser.endTime, "DD/MM/YYYY HH:mm:ss").diff(moment(endUser.startTime, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss");
-    //                 timeHMSArray = payTimeDifference.split(':');
-    //
-    //                 for (let i = 0; i < timeHMSArray.length; i++) {
-    //                     timeHMSArray[i] = parseInt(timeHMSArray[i]) / Math.pow(60, i);
-    //                 }
-    //
-    //                 const totalTime = Math.ceil(timeHMSArray.reduce((total, current) => total + current)) * 30;
-    //                 const finalPrice = totalTime + parseInt(Pay.pay_part1);
-    //
-    //                 User.findOne({embg: endUser.embg})
-    //                     .then(user => {
-    //                         user.credits = user.credits - finalPrice;
-    //                         user.save()
-    //                             .then(user => {
-    //                                 // res.send('The price has been deducted');
-    //                                 CBike.findOne({embg: user.embg}, {_id: 0})
-    //                                     .then(user => {
-    //                                         console.log(user);
-    //                                         const newUserToPermSave = {
-    //                                             embg: user.embg,
-    //                                             bike_id: user.bike_id,
-    //                                             startTime: user.startTime,
-    //                                             longitude: user.longitude,
-    //                                             latitude: user.latitude,
-    //                                             endTime: user.endTime
-    //                                         };
-    //                                         new PastBike(newUserToPermSave)
-    //                                             .save()
-    //                                             .then(user => {
-    //
-    //                                                 CBike.remove({embg: user.embg})
-    //                                                     .then(() => res.send('The price has been deducted'))
-    //                                                     .catch(err => console.log(err));
-    //
-    //                                             })
-    //                                             .catch(err => console.log(err));
-    //                                     });
-    //                             })
-    //                             .catch(() => console.log('The user has not been saved'));
-    //                     })
-    //                     .catch(() => console.log(`The user doesn't exist`));
-    //
-    //             });
-    //     });
+            // CBike.findOne({embg: Pay.embg})
+            //     .then(cuser => {
+            //         cuser.endTime = Date.now();
+            //
+            //         cuser
+            //             .save()
+            //             .then(endUser => {
+            //
+            //                 const payTimeDifference = moment.utc(moment(endUser.endTime, "DD/MM/YYYY HH:mm:ss").diff(moment(endUser.startTime, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss");
+            //                 timeHMSArray = payTimeDifference.split(':');
+            //
+            //                 for (let i = 0; i < timeHMSArray.length; i++) {
+            //                     timeHMSArray[i] = parseInt(timeHMSArray[i]) / Math.pow(60, i);
+            //                 }
+            //
+            //                 const totalTime = Math.ceil(timeHMSArray.reduce((total, current) => total + current)) * 30;
+            //                 const finalPrice = totalTime + parseInt(Pay.pay_part1);
+            //
+            //                 User.findOne({embg: endUser.embg})
+            //                     .then(user => {
+            //                         user.credits = user.credits - finalPrice;
+            //                         user.save()
+            //                             .then(user => {
+            //                                 // res.send('The price has been deducted');
+            //                                 CBike.findOne({embg: user.embg}, {_id: 0})
+            //                                     .then(user => {
+            //                                         console.log(user);
+            //                                         const newUserToPermSave = {
+            //                                             embg: user.embg,
+            //                                             bike_id: user.bike_id,
+            //                                             startTime: user.startTime,
+            //                                             longitude: user.longitude,
+            //                                             latitude: user.latitude,
+            //                                             endTime: user.endTime
+            //                                         };
+            //                                         new PastBike(newUserToPermSave)
+            //                                             .save()
+            //                                             .then(user => {
+            //
+            //                                                 CBike.remove({embg: user.embg})
+            //                                                     .then(() => res.send('The price has been deducted'))
+            //                                                     .catch(err => console.log(err));
+            //
+            //                                             })
+            //                                             .catch(err => console.log(err));
+            //                                     });
+            //                             })
+            //                             .catch(() => console.log('The user has not been saved'));
+            //                     })
+            //                     .catch(() => console.log(`The user doesn't exist`));
+            //
+            //             });
+            //     });
+        });
 });
 app.post('/update_bike_user', ensureEndString, (req, res) => {
 
