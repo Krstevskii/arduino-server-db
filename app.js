@@ -149,7 +149,10 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
     CBike.updateOne(
         {bike_id: bike_id, embg: embg},
         {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}})
-        .then(result => res.send("Map is Updated"))
+        .then(result => {
+            if(!result)
+                return res.status(400).send('There is no such user and bike_id');
+        })
         .catch(err => res.status(503).send("An error occurred"));
 });
 
