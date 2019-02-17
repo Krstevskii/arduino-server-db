@@ -146,9 +146,10 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
     let embg = req.body.embg;
     let bike_id = req.body.bike_id;
 
-    CBike.updateOne(
+    CBike.findOneAndUpdate(
         {bike_id: bike_id, embg: embg},
-        {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}})
+        {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}},
+        {new: true})
         .then(result => {
             console.log(result);
             if (!result)
