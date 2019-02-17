@@ -70,7 +70,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                         .then(user => {
                             new PastBike({
                                 ...currentBike._doc,
-                                onStation: Pay.onStation === 'true'
+                                onStation: Pay.onStation === '1'
                             })
                                 .save()
                                 .then(pbike => {
@@ -150,7 +150,7 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
         {bike_id: bike_id, embg: embg},
         {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}})
         .then(result => {
-            if(!result)
+            if (!result)
                 return res.status(400).send('There is no such user and bike_id');
 
             res.send('Map is updated');
