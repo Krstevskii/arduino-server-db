@@ -20,7 +20,7 @@ const pastBikeSchema = new Schema({
 
     endTime: {
         type: Date,
-        required: false
+        required: true
     },
 
     longitude: {

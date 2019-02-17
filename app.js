@@ -44,10 +44,46 @@ app.get('/', (req, res) => {
 app.post('/pay', ensureEndString, (req, res) => {
 
     const Pay = {
-        embg: req.body.bike_id,
-        pay_part1: req.body.extra,
-        onStation: req.body.onStation
+        extra: req.body.extra,
+        onStation: req.body.onStation,
+        bike_id: req.body.bike_id
     };
+
+    console.log(typeof Pay.bike_id);
+
+    CBike.findOne({bike_id: Pay.bike_id})
+        .then(currentBike => {
+            const endTime = moment.tz(moment(Date.now()).format(), 'Europe/Skopje');
+            const startTime = moment.tz(currentBike.startTime, "Europe/Skopje");
+            let diff = endTime.diff(startTime, null, true);
+
+            diff = moment.utc(diff).format('HH:mm:ss').split(':');
+
+            User.findOne({embg: currentBike.embg})
+                .then(user => {
+                    user.credits = parseInt(user.credits) - (parseInt(diff) + 1) * 30 - parseInt(Pay.extra);
+                    currentBike.endTime = endTime;
+
+                    new User(user)
+                        .save()
+                        .then(user => console.log(user))
+                        .catch(err => res.send("An error occurred"));
+
+                    new PastBike({
+                        ...currentBike._doc,
+                        onStation: Pay.onStation === 'true'
+                    })
+                        .save()
+                        .then(pbike => console.log(pbike))
+                        .catch(err => res.send("An error occurred"));
+
+                    CBike.deleteOne({embg: Pay.embg, bike_id: Pay.bike_id})
+                        .then(cbike => console.log(cbike))
+                        .catch(err => res.send("An error occurred"));
+                })
+
+        })
+        .catch(err => res.send('An error occurred'));
 
     // CBike.findOne({embg: Pay.embg})
     //     .then(cuser => {
@@ -108,10 +144,10 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
     let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
     let longitudeUpdate = req.body.longitude / Math.pow(10, 6);
     let embg = req.body.embg;
-    let bike_id = req.body.bike_id
+    let bike_id = req.body.bike_id;
 
     CBike.updateOne(
-        {bike_id: bike_id},
+        {bike_id: bike_id, embg: embg},
         {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}})
         .then(result => res.send("Map is Updated"))
         .catch(err => res.status(503).send("An error occurred"));
@@ -136,7 +172,7 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
                     .then(bikeUserModel => res.send("The bike has started"))
                     .catch(err => res.status(503).send("An error occurred"));
             } else {
-                if( result.embg === BuildUserBikeModel.embg )
+                if (result.embg === BuildUserBikeModel.embg)
                     res.send('The user has already started the bike');
                 else
                     res.send('Another user already uses the bike');
