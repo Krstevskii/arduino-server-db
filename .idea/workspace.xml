@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a0ca76c0-2e74-4fb4-9f08-0c7607b0a46d" name="Default" comment="" />
+    <list default="true" id="a0ca76c0-2e74-4fb4-9f08-0c7607b0a46d" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -28,8 +30,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="487">
-              <caret line="159" column="57" selection-start-line="159" selection-start-column="57" selection-end-line="159" selection-end-column="57" />
+            <state relative-caret-position="357">
+              <caret line="86" column="59" selection-start-line="86" selection-start-column="59" selection-end-line="86" selection-end-column="59" />
             </state>
           </provider>
         </entry>
@@ -262,12 +264,12 @@
       <workItem from="1550074372996" duration="10476000" />
       <workItem from="1550160290357" duration="195000" />
       <workItem from="1550344031554" duration="7916000" />
-      <workItem from="1550420979840" duration="4617000" />
+      <workItem from="1550420979840" duration="5767000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="141413000" />
+    <option name="totallyTimeSpent" value="142563000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -280,6 +282,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="27" width="1853" height="1053" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" sideWeight="0.50402147" side_tool="true" weight="0.1546448" />
       <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49597856" visible="true" weight="0.1546448" />
@@ -383,8 +386,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="487">
-          <caret line="159" column="57" selection-start-line="159" selection-start-column="57" selection-end-line="159" selection-end-column="57" />
+        <state relative-caret-position="357">
+          <caret line="86" column="59" selection-start-line="86" selection-start-column="59" selection-end-line="86" selection-end-column="59" />
         </state>
       </provider>
     </entry>
