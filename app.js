@@ -150,6 +150,7 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
         {bike_id: bike_id, embg: embg},
         {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}})
         .then(result => {
+            console.log(result);
             if (!result)
                 return res.status(400).send('There is no such user and bike_id');
 
