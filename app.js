@@ -66,24 +66,22 @@ app.post('/pay', ensureEndString, (req, res) => {
 
                     new User(user)
                         .save()
-                        .then(user => console.log(user))
-                        .catch(err => res.send("An error occurred"));
-
-                    new PastBike({
-                        ...currentBike._doc,
-                        onStation: Pay.onStation === 'true'
-                    })
-                        .save()
-                        .then(pbike => console.log(pbike))
-                        .catch(err => res.send("An error occurred"));
-
-                    CBike.deleteOne({embg: Pay.embg, bike_id: Pay.bike_id})
-                        .then(cbike => console.log(cbike))
-                        .catch(err => res.send("An error occurred"));
+                        .then(user => {
+                            new PastBike({
+                                ...currentBike._doc,
+                                onStation: Pay.onStation === 'true'
+                            })
+                                .save()
+                                .then(pbike => {
+                                    CBike.deleteOne({embg: Pay.embg, bike_id: Pay.bike_id})
+                                        .then(cbike => res.send("The user has ended the bike session"))
+                                        .catch(err => res.send("An error occurred"));
+                        })
+                        .catch(err => res.status(503).send("An error occurred"));
                 })
-
+                .catch(err => res.status(503).send("An error occurred"));
         })
-        .catch(err => res.send('An error occurred'));
+        .catch(err => res.status(503).send('An error occurred'));
 
     // CBike.findOne({embg: Pay.embg})
     //     .then(cuser => {
