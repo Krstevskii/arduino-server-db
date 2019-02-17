@@ -152,6 +152,8 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
         .then(result => {
             if(!result)
                 return res.status(400).send('There is no such user and bike_id');
+
+            res.send('Map is updated');
         })
         .catch(err => res.status(503).send("An error occurred"));
 });
