@@ -50,6 +50,7 @@ app.post('/pay', ensureEndString, (req, res) => {
     };
 
     console.log(typeof Pay.bike_id);
+    console.log(req.body);
 
     CBike.findOne({bike_id: Pay.bike_id})
         .then(currentBike => {
