@@ -73,7 +73,7 @@ app.post('/pay', ensureEndString, (req, res) => {
                             })
                                 .save()
                                 .then(pbike => {
-                                    CBike.deleteOne({embg: Pay.embg, bike_id: Pay.bike_id})
+                                    CBike.deleteOne({bike_id: Pay.bike_id})
                                         .then(cbike => res.send("The user has ended the bike session"))
                                         .catch(err => res.send("An error occurred"));
                                 })
