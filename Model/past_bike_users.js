@@ -9,8 +9,8 @@ const pastBikeSchema = new Schema({
     },
 
     bike_id: {
-        type: Number,
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'bikes'
     },
 
     startTime: {

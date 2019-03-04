@@ -13,6 +13,10 @@ mongoose.connect('mongodb+srv://krstevskii:imwIqflnyK6YEWuP@arduino-express-nfc-
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+// Load Model Bikes
+require('./Model/bikes');
+const Bike = mongoose.model('bikes');
+
 // Load Model Users
 require('./Model/users');
 const User = mongoose.model('user');
@@ -21,23 +25,18 @@ const User = mongoose.model('user');
 require('./Model/past_bike_users');
 const PastBike = mongoose.model('past_bike');
 
-// Load EndStringCheckup
-const ensureEndString = require('./config/endStrings');
-
 // Load Model Current Bike
 require('./Model/current_bike');
 const CBike = mongoose.model('current_bike');
 
+// Load EndStringCheckup
+const ensureEndString = require('./config/endStrings');
+
 app.get('/', (req, res) => {
 
-    res.send('<!DOCTYPE html>\n' +
-        '<html>\n' +
-        '<body>\n' +
-        '\n' +
-        '<h1>Smart Bike</h1>\n' +
-        '\n' +
-        '</body>\n' +
-        '</html>\n');
+    res.json({
+        msg: "/GET homepage testing"
+    });
 
 });
 
@@ -93,17 +92,25 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
     let embg = req.body.embg;
     let bike_id = req.body.bike_id;
 
-    CBike.findOneAndUpdate(
-        {bike_id: bike_id, embg: embg},
-        {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}},
-        {new: true})
-        .then(result => {
-            if (!result)
-                return res.status(400).send('There is no such user and bike_id');
+    Bike.findOne({bike_id: bike_id})
+        .then(bike => {
+            if(!bike) return res.status(404).send('The bike doesn\'t exist');
 
-            res.send('Map is Updated');
-        })
-        .catch(err => res.status(503).send("An error occurred"));
+            bike_id = bike._id;
+
+            CBike.findOneAndUpdate(
+                {bike_id: bike_id, embg: embg},
+                {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}},
+                {new: true}
+            )
+                .then(result => {
+                    if (!result)
+                        return res.status(400).send('There is no such user and bike_id');
+
+                    res.send('Map is Updated');
+                })
+                .catch(err => res.status(503).send("An error occurred"));
+        });
 });
 
 app.post('/start_bike_user', ensureEndString, (req, res) => {
@@ -117,13 +124,19 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
 
     };
 
-    CBike.findOne({bike_id: BuildUserBikeModel.bike_id})
+    CBike.findOne({embg: BuildUserBikeModel.embg})
+        .populate('bike_id')
         .then(result => {
             if (!result) {
-                new CBike(BuildUserBikeModel)
-                    .save()
-                    .then(bikeUserModel => res.send("The bike has started"))
-                    .catch(err => res.status(503).send("An error occurred"));
+                Bike.findOne({bike_id: BuildUserBikeModel.bike_id})
+                    .then(bike => {
+                        BuildUserBikeModel.bike_id = bike._id;
+                        new CBike(BuildUserBikeModel)
+                            .save()
+                            .then(bikeUserModel => res.send("The bike has started"))
+                            .catch(err => res.status(503).send("An error occurred"));
+                    })
+                    .catch(err => res.status(503).send('An error occurred'));
             } else {
                 if (result.embg === BuildUserBikeModel.embg)
                     res.send('The user has already started the bike');
@@ -136,22 +149,47 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
 
 app.post('/find_user', ensureEndString, (req, res) => {
 
-    let embg = req.body.embg;
+    const embg = req.body.embg;
+    const bike_id = req.body.bike_id;
 
     if (embg.length === 13) {
         User.findOne({embg: `${embg}`})
             .then(user => {
                 if (!user) return res.status(404).send('The User does not exist');
 
-                if (user.credits >= 50)
-                    res.send("[1]");
-                else
+                if (user.credits >= 50) {
+                    Bike.findOne({bike_id: bike_id})
+                        .then(bike => {
+                            console.log(bike);
+                            if (!bike) return res.status(503).send("The bike doesn't exist");
+
+                            if (bike.onStation)
+                                return res.send('[11]');
+                            else
+                                return res.send('[1]');
+                        })
+                        .catch(err => res.status(503).send('An error has occurred'));
+                } else
                     res.send("The user has insufficient credits");
             })
             .catch(err => res.status(503).send("An error occurred"));
     } else {
         res.send("Invalid embg");
     }
+});
+
+app.post('/save_bike', ensureEndString, (req, res) => {
+
+    const newBike = {
+        bike_id: req.body.bike_id,
+        onStation: req.body.onStation
+    };
+
+    new Bike(newBike)
+        .save()
+        .then(bike => res.json({msg: '/POST bike has been added'}))
+        .catch(err => res.status(503).send('An error has occurred'));
+
 });
 
 

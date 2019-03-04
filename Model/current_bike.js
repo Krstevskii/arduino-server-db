@@ -10,9 +10,8 @@ const currentBikeSchema = new Schema({
     },
 
     bike_id: {
-        type: Number,
-        unique: true,
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'bikes'
     },
 
     startTime: {
