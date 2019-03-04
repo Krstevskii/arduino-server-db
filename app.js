@@ -173,9 +173,16 @@ app.post('/find_user', ensureEndString, (req, res) => {
                             console.log(bike);
                             if (!bike) return res.status(503).send("The bike doesn't exist");
 
-                            if (bike.stationParams.onStation)
-                                return res.send('[11]');
-                            else
+                            if (bike.stationParams.onStation) {
+
+                                bike.started = true;
+                                bike.save()
+                                    .catch(err => res.status(503).send('An error occurred'));
+
+                                res.send('The station will open the bike in the next few seconds');
+
+
+                            } else
                                 return res.send('[1]');
                         })
                         .catch(err => res.status(503).send('An error has occurred'));
@@ -188,6 +195,29 @@ app.post('/find_user', ensureEndString, (req, res) => {
     }
 });
 
+app.get('/check', (req, res) => {
+    Bike.find()
+        .then(bikes => {
+            const bikeArray = bikes.filter(bike => bike.stationParams.station === req.query.station && bike.stationParams.slot === parseInt(req.query.slot));
+            if (!bikeArray[0])
+                return res.status(404).send('The bike isn\'t at the station');
+
+            if(bikeArray[0].stationParams.onStation) {
+                if (bikeArray[0].started) {
+                    bikeArray[0].stationParams.onStation = false;
+                    bikeArray[0].save()
+                        .then(bike => console.log(bike))
+                        .catch(err => res.status(503).send('An error occurred'));
+
+                    res.send('[1]');
+                } else
+                    res.send('[0]');
+            }
+            else
+                res.send('[0]');
+        });
+});
+
 app.post('/save_bike', ensureEndString, (req, res) => {
 
     const newBike = {
@@ -196,7 +226,6 @@ app.post('/save_bike', ensureEndString, (req, res) => {
             onStation: req.body.onStation === '1',
             station: req.body.station,
             slot: req.body.slot
-
         }
     };
 
