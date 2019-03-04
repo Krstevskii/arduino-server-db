@@ -3,16 +3,33 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const BikeSchema = new Schema({
 
-    bike_num: {
+    bike_id: {
         type: String,
         required: true
     },
 
-    onStation: {
+    stationParams: {
+        onStation: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+
+        station: {
+            type: String
+        },
+
+        slot: {
+            type: Number
+        }
+    },
+
+    started: {
         type: Boolean,
         required: true,
         default: false
     }
+
 
 });
 

@@ -51,40 +51,50 @@ app.post('/pay', ensureEndString, (req, res) => {
     console.log(typeof Pay.bike_id);
     console.log(req.body);
 
-    CBike.findOne({bike_id: Pay.bike_id})
-        .then(currentBike => {
-            const endTime = moment.tz(moment(Date.now()).format(), 'Europe/Skopje');
-            const startTime = moment.tz(currentBike.startTime, "Europe/Skopje");
-            let diff = endTime.diff(startTime, null, true);
+    Bike.findOne({bike_id: Pay.bike_id})
+        .then(bike => {
+            bike.onStation = Pay.onStation === '1';
+            bike.save()
+                .catch(err => res.status(503).send('An error occurred'));
 
-            diff = moment.utc(diff).format('HH:mm:ss').split(':');
+            CBike.findOne({bike_id: bike._id})
+                .then(currentBike => {
+                    if (!currentBike) return res.status(404).send('The current user doesn\'t exist');
+                    const endTime = moment.tz(moment(Date.now()).format(), 'Europe/Skopje');
+                    const startTime = moment.tz(currentBike.startTime, "Europe/Skopje");
+                    let diff = endTime.diff(startTime, null, true);
 
-            User.findOne({embg: currentBike.embg})
-                .then(user => {
-                    user.credits = parseInt(user.credits) - (parseInt(diff) + 1) * 30 - parseInt(Pay.extra);
-                    currentBike.endTime = endTime;
+                    diff = moment.utc(diff).format('HH:mm:ss').split(':');
 
-                    new User(user)
-                        .save()
+                    User.findOne({embg: currentBike.embg})
                         .then(user => {
-                            new PastBike({
-                                ...currentBike._doc,
-                                onStation: Pay.onStation === '1'
-                            })
+                            user.credits = parseInt(user.credits) - (parseInt(diff) + 1) * 30 - parseInt(Pay.extra);
+                            currentBike.endTime = endTime;
+
+                            new User(user)
                                 .save()
-                                .then(pbike => {
-                                    CBike.deleteOne({bike_id: Pay.bike_id})
-                                        .then(cbike => res.send("The user has ended the bike session"))
-                                        .catch(err => res.send("An error occurred"));
+                                .then(user => {
+                                    new PastBike({
+                                        ...currentBike._doc,
+                                        onStation: Pay.onStation === '1'
+                                    })
+                                        .save()
+                                        .then(pbike => {
+                                            console.log('asdfasdfasf');
+                                            CBike.deleteOne({bike_id: bike._id})
+                                                .then(cbike => res.send("The user has ended the bike session"))
+                                                .catch(err => res.send("An error occurred"));
+                                        })
+                                        .catch(err => res.status(503).send(err));
                                 })
                                 .catch(err => res.status(503).send("An error occurred"));
                         })
-                        .catch(err => res.status(503).send("An error occurred"));
+                        .catch(err => res.status(503).send('An error occurred'));
                 })
-                .catch(err => res.status(503).send('An error occurred'));
         })
         .catch(err => res.status(503).send('An error occurred'));
 });
+
 app.post('/update_bike_user', ensureEndString, (req, res) => {
 
     let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
@@ -94,7 +104,7 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
 
     Bike.findOne({bike_id: bike_id})
         .then(bike => {
-            if(!bike) return res.status(404).send('The bike doesn\'t exist');
+            if (!bike) return res.status(404).send('The bike doesn\'t exist');
 
             bike_id = bike._id;
 
@@ -163,7 +173,7 @@ app.post('/find_user', ensureEndString, (req, res) => {
                             console.log(bike);
                             if (!bike) return res.status(503).send("The bike doesn't exist");
 
-                            if (bike.onStation)
+                            if (bike.stationParams.onStation)
                                 return res.send('[11]');
                             else
                                 return res.send('[1]');
@@ -182,7 +192,12 @@ app.post('/save_bike', ensureEndString, (req, res) => {
 
     const newBike = {
         bike_id: req.body.bike_id,
-        onStation: req.body.onStation
+        stationParams: {
+            onStation: req.body.onStation === '1',
+            station: req.body.station,
+            slot: req.body.slot
+
+        }
     };
 
     new Bike(newBike)
