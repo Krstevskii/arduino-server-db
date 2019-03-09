@@ -3,7 +3,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
-const {check, validationResult} = require('express-validator/check');
+const {body, validationResult} = require('express-validator/check');
+const {sanitizeBody, sanitizeQuery} = require('express-validator/filter');
 
 const port = process.env.PORT || 4000;
 
@@ -174,7 +175,23 @@ app.post('/start_bike_user', ensureEndString, (req, res) => {
         .catch(err => res.status(503).send("An error occurred"));
 });
 
-app.post('/find_user', ensureEndString, (req, res) => {
+app.post('/find_user', ensureEndString,
+    [
+        body('embg')
+            .isLength({min: 13, max: 13})
+            .withMessage('Must be 13 characters long'),
+        body('bike_id')
+            .isNumeric()
+            .withMessage('Must be a number')
+    ]
+    ,(req, res) => {
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        console.log(errors.array());
+        return res.status(400).send('Not valid parameters');
+    }
 
     const embg = req.body.embg;
     const bike_id = req.body.bike_id;
@@ -213,44 +230,57 @@ app.post('/find_user', ensureEndString, (req, res) => {
     }
 });
 
-app.get('/check', (req, res) => {
-    Bike.find()
-        .then(bikes => {
-            const bikeArray = bikes.filter(bike => bike.stationParams.station === req.query.station && bike.stationParams.slot === parseInt(req.query.slot));
-            if (!bikeArray[0])
-                return res.status(404).send('The bike isn\'t at the station');
+app.get('/check',
+    [
+        sanitizeQuery('slot')
+            .toInt()
+    ],
+    (req, res) => {
 
-            if (bikeArray[0].stationParams.onStation) {
-                if (bikeArray[0].started) {
-                    bikeArray[0].stationParams.onStation = false;
-                    bikeArray[0].save()
-                        .then(bike => console.log(bike))
-                        .catch(err => res.status(503).send('An error occurred'));
+        const errors = validationResult(req);
 
-                    res.send('[1]');
+        if (!errors.isEmpty()) {
+            console.log(errors.array());
+            return res.status(400).send('Not valid parameters');
+        }
+
+        Bike.find()
+            .then(bikes => {
+                const bikeArray = bikes.filter(bike => bike.stationParams.station === req.query.station && bike.stationParams.slot === req.query.slot);
+                if (!bikeArray[0])
+                    return res.status(404).send('The bike isn\'t at the station');
+
+                if (bikeArray[0].stationParams.onStation) {
+                    if (bikeArray[0].started) {
+                        bikeArray[0].stationParams.onStation = false;
+                        bikeArray[0].save()
+                            .then(bike => console.log(bike))
+                            .catch(err => res.status(503).send('An error occurred'));
+
+                        res.send('[1]');
+                    } else
+                        res.send('[0]');
                 } else
                     res.send('[0]');
-            } else
-                res.send('[0]');
-        });
-});
+            });
+    });
 
-app.post('/save_bike',
+app.post('/save_bike', ensureEndString,
     [
-        check('bike_id')
+        body('bike_id')
             .isNumeric()
             .withMessage('Must be a number'),
-        check('onStation')
+        body('onStation')
             .isBoolean()
             .withMessage('Must be a true/false value'),
-        check('slot')
+        body('slot')
             .isNumeric()
             .withMessage('Must be a numeric value')
     ]
-    , ensureEndString, (req, res) => {
+    , (req, res) => {
 
         const errors = validationResult(req);
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             console.log(errors.array());
             return res.status(400).send('Not valid parameters');
         }
@@ -272,19 +302,20 @@ app.post('/save_bike',
     });
 
 
-app.post('/save_user',
+app.post('/save_user', ensureEndString,
     [
-        check('embg')
+        body('embg')
             .isLength({min: 13, max: 13})
             .withMessage('Must be 13 characters long and is Required'),
-        check('firstname')
+        body('firstname')
             .isLength({min: 3, max: 30})
             .withMessage('First name must be between 3 and 30 characters and is Required'),
-        check('lastname')
+        body('lastname')
             .isLength({min: 3, max: 50})
-            .withMessage('Last name must be between 3 and 50 characters and is Required')
-    ],
-    ensureEndString, (req, res) => {
+            .withMessage('Last name must be between 3 and 50 characters and is Required'),
+        sanitizeBody('credits')
+            .toInt()
+    ], (req, res) => {
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
