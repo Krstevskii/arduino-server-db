@@ -42,84 +42,116 @@ app.get('/', (req, res) => {
     });
 
 });
+app.post('/pay', ensureEndString,
+    [
+        body('bike_id')
+            .not()
+            .isEmpty()
+            .isNumeric()
+            .withMessage('Must be a number'),
+        body('onStation')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .isBoolean()
+            .withMessage('Must be a true/false value')
+            .toBoolean(),
+        body('extra')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .isNumeric()
+            .withMessage('Must be a number')
+            .toInt(),
+        body('slot')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .isNumeric()
+            .withMessage('Must be a numeric value')
+            .toInt()
+    ]
+    , (req, res) => {
 
-app.post('/pay', ensureEndString, (req, res) => {
+        const Pay = {
+            extra: req.body.extra,
+            onStation: req.body.onStation,
+            bike_id: req.body.bike_id,
+            station: req.body.station,
+            slot: parseInt(req.body.slot)
+        };
 
-    const Pay = {
-        extra: req.body.extra,
-        onStation: req.body.onStation,
-        bike_id: req.body.bike_id,
-        station: req.body.station,
-        slot: parseInt(req.body.slot)
-    };
+        console.log(typeof Pay.bike_id);
+        console.log(req.body);
 
-    console.log(typeof Pay.bike_id);
-    console.log(req.body);
+        Bike.findOne({bike_id: Pay.bike_id})
+            .then(bike => {
+                bike.onStation = Pay.onStation === '1';
+                bike.save()
+                    .catch(err => res.status(503).send('An error occurred'));
 
-    Bike.findOne({bike_id: Pay.bike_id})
-        .then(bike => {
-            bike.onStation = Pay.onStation === '1';
-            bike.save()
-                .catch(err => res.status(503).send('An error occurred'));
+                CBike.findOne({bike_id: bike._id})
+                    .then(currentBike => {
+                        if (!currentBike) return res.status(404).send('The current user doesn\'t exist');
+                        const endTime = moment.tz(moment(Date.now()).format(), 'Europe/Skopje');
+                        const startTime = moment.tz(currentBike.startTime, "Europe/Skopje");
+                        let diff = endTime.diff(startTime, null, true);
 
-            CBike.findOne({bike_id: bike._id})
-                .then(currentBike => {
-                    if (!currentBike) return res.status(404).send('The current user doesn\'t exist');
-                    const endTime = moment.tz(moment(Date.now()).format(), 'Europe/Skopje');
-                    const startTime = moment.tz(currentBike.startTime, "Europe/Skopje");
-                    let diff = endTime.diff(startTime, null, true);
+                        diff = moment.utc(diff).format('HH:mm:ss').split(':');
 
-                    diff = moment.utc(diff).format('HH:mm:ss').split(':');
+                        User.findOne({embg: currentBike.embg})
+                            .then(user => {
+                                user.credits = parseInt(user.credits) - (parseInt(diff) + 1) * 30 - parseInt(Pay.extra);
+                                currentBike.endTime = endTime;
 
-                    User.findOne({embg: currentBike.embg})
-                        .then(user => {
-                            user.credits = parseInt(user.credits) - (parseInt(diff) + 1) * 30 - parseInt(Pay.extra);
-                            currentBike.endTime = endTime;
-
-                            new User(user)
-                                .save()
-                                .then(user => {
-                                    new PastBike({
-                                        ...currentBike._doc,
-                                        onStation: Pay.onStation === '1'
-                                    })
-                                        .save()
-                                        .then(pbike => {
-                                            console.log('asdfasdfasf');
-                                            if (Pay.onStation) {
-                                                Bike.findOne({bike_id: currentBike.bike_id})
-                                                    .then(bike => {
-                                                        updateBikeCreds = {
-                                                            ...bike,
-                                                            started: false,
-                                                            stationParams: {
-                                                                ...bike.stationParams,
-                                                                onStation: true
-                                                            }
-                                                        };
-                                                    })
-                                                    .catch(err => res.send(err));
-                                            }
-                                            CBike.deleteOne({bike_id: bike._id})
-                                                .then(cbike => res.send("The user has ended the bike session"))
-                                                .catch(err => res.send("An error occurred"));
+                                new User(user)
+                                    .save()
+                                    .then(user => {
+                                        new PastBike({
+                                            ...currentBike._doc,
+                                            onStation: Pay.onStation === '1'
                                         })
-                                        .catch(err => res.status(503).send(err));
-                                })
-                                .catch(err => res.status(503).send("An error occurred"));
-                        })
-                        .catch(err => res.status(503).send('An error occurred'));
-                })
-        })
-        .catch(err => res.status(503).send('An error occurred'));
-});
+                                            .save()
+                                            .then(pbike => {
+                                                console.log('asdfasdfasf');
+                                                if (Pay.onStation) {
+                                                    Bike.findOne({bike_id: currentBike.bike_id})
+                                                        .then(bike => {
+                                                            updateBikeCreds = {
+                                                                ...bike,
+                                                                started: false,
+                                                                stationParams: {
+                                                                    ...bike.stationParams,
+                                                                    onStation: true
+                                                                }
+                                                            };
+                                                        })
+                                                        .catch(err => res.send(err));
+                                                }
+                                                CBike.deleteOne({bike_id: bike._id})
+                                                    .then(cbike => res.send("The user has ended the bike session"))
+                                                    .catch(err => res.send("An error occurred"));
+                                            })
+                                            .catch(err => res.status(503).send(err));
+                                    })
+                                    .catch(err => res.status(503).send("An error occurred"));
+                            })
+                            .catch(err => res.status(503).send('An error occurred'));
+                    })
+            })
+            .catch(err => res.status(503).send('An error occurred'));
+    });
 
 app.post('/update_bike_user', ensureEndString,
     [
         body('embg')
+            .not()
+            .isEmpty()
             .isLength({min: 13, max: 13})
             .withMessage('Must be 13 characters long'),
         body('bike_id')
+            .not()
+            .isEmpty()
             .isNumeric()
             .withMessage('Must be a number'),
         body('longitude')
@@ -174,9 +206,15 @@ app.post('/update_bike_user', ensureEndString,
 app.post('/start_bike_user', ensureEndString,
     [
         body('embg')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isLength({min: 13, max: 13})
             .withMessage('Must be 13 characters long'),
         body('bike_id')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isNumeric()
             .withMessage('Must be a number'),
         body('longitude')
@@ -342,7 +380,6 @@ app.post('/save_bike', ensureEndString,
             .not()
             .isEmpty()
             .withMessage('Required')
-            .trim()
             .isBoolean()
             .withMessage('Must be a true/false value')
             .toBoolean(),
@@ -377,7 +414,6 @@ app.post('/save_bike', ensureEndString,
             .catch(err => res.status(503).send('An error has occurred'));
 
     });
-
 
 app.post('/save_user', ensureEndString,
     [
@@ -422,15 +458,12 @@ app.post('/save_user', ensureEndString,
                 res.send(user);
             })
             .catch(err => res.status(503).send('An error occurred'));
-
     });
 
 app.get('/get_all', (req, res) => {
-
     User.find({}).then(idea => {
         res.send(JSON.stringify(idea));
     });
-
 });
 
 app.listen(port, () => console.log(`Serving forever on port ${port}...`));
