@@ -14,7 +14,7 @@ const BikeSchema = new Schema({
         onStation: {
             type: Boolean,
             required: true,
-            default: false
+            default: true
         },
 
         station: {

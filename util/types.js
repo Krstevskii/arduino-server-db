@@ -1,5 +1,5 @@
 module.exports = (data) => {
     for (let i in data){
-        console.log(typeof i);
+        console.log(i + ': ' + typeof data[i]);
     }
 };

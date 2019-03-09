@@ -114,33 +114,62 @@ app.post('/pay', ensureEndString, (req, res) => {
         .catch(err => res.status(503).send('An error occurred'));
 });
 
-app.post('/update_bike_user', ensureEndString, (req, res) => {
+app.post('/update_bike_user', ensureEndString,
+    [
+        body('embg')
+            .isLength({min: 13, max: 13})
+            .withMessage('Must be 13 characters long'),
+        body('bike_id')
+            .isNumeric()
+            .withMessage('Must be a number'),
+        body('longitude')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .toFloat(),
+        body('latitude')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .toFloat(),
 
-    let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
-    let longitudeUpdate = req.body.longitude / Math.pow(10, 6);
-    let embg = req.body.embg;
-    let bike_id = req.body.bike_id;
+    ]
+    , (req, res) => {
 
-    Bike.findOne({bike_id: bike_id})
-        .then(bike => {
-            if (!bike) return res.status(404).send('The bike doesn\'t exist');
+        const errors = validationResult(req);
 
-            bike_id = bike._id;
+        if (!errors.isEmpty()) {
+            console.log(errors.array());
+            return res.status(400).send('Not valid parameters');
+        }
 
-            CBike.findOneAndUpdate(
-                {bike_id: bike_id, embg: embg},
-                {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}},
-                {new: true}
-            )
-                .then(result => {
-                    if (!result)
-                        return res.status(400).send('There is no such user and bike_id');
+        types(req.body);
 
-                    res.send('Map is Updated');
-                })
-                .catch(err => res.status(503).send("An error occurred"));
-        });
-});
+        let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
+        let longitudeUpdate = req.body.longitude / Math.pow(10, 6);
+        let embg = req.body.embg;
+        let bike_id = req.body.bike_id;
+
+        Bike.findOne({bike_id: bike_id})
+            .then(bike => {
+                if (!bike) return res.status(404).send('The bike doesn\'t exist');
+
+                bike_id = bike._id;
+
+                CBike.findOneAndUpdate(
+                    {bike_id: bike_id, embg: embg},
+                    {$push: {longitude: longitudeUpdate, latitude: latitudeUpdate}},
+                    {new: true}
+                )
+                    .then(result => {
+                        if (!result)
+                            return res.status(400).send('There is no such user and bike_id');
+
+                        res.send('Map is Updated');
+                    })
+                    .catch(err => res.status(503).send("An error occurred"));
+            });
+    });
 
 app.post('/start_bike_user', ensureEndString,
     [
@@ -154,24 +183,23 @@ app.post('/start_bike_user', ensureEndString,
             .not()
             .isEmpty()
             .withMessage('Required')
-            .toInt(),
+            .toFloat(),
         body('latitude')
             .not()
             .isEmpty()
             .withMessage('Required')
-            .toInt(),
+            .toFloat(),
 
     ]
     , (req, res) => {
 
-        types(req.body);
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
             console.log(errors.array());
             return res.status(400).send('Not valid parameters');
         }
-
+        types(req.body);
         const BuildUserBikeModel = {
 
             embg: req.body.embg,
@@ -221,6 +249,7 @@ app.post('/find_user', ensureEndString,
     ]
     , (req, res) => {
 
+        types(req.body);
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -272,6 +301,7 @@ app.get('/check',
     ],
     (req, res) => {
 
+        types(req.query);
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -312,17 +342,20 @@ app.post('/save_bike', ensureEndString,
             .not()
             .isEmpty()
             .withMessage('Required')
+            .trim()
             .isBoolean()
-            .withMessage('Must be a true/false value'),
+            .withMessage('Must be a true/false value')
+            .toBoolean(),
         body('slot')
             .not()
             .isEmpty()
             .withMessage('Required')
             .isNumeric()
             .withMessage('Must be a numeric value')
+            .toInt()
     ]
     , (req, res) => {
-
+        types(req.body);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors.array());
@@ -332,7 +365,7 @@ app.post('/save_bike', ensureEndString,
         const newBike = {
             bike_id: req.body.bike_id,
             stationParams: {
-                onStation: req.body.onStation === '1',
+                onStation: req.body.onStation,
                 station: req.body.station,
                 slot: req.body.slot
             }
@@ -369,7 +402,7 @@ app.post('/save_user', ensureEndString,
         sanitizeBody('credits')
             .toInt()
     ], (req, res) => {
-
+        types(req.body);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors.array());
