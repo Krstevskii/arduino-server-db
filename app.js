@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const moment = require('moment-timezone');
 const {body, validationResult} = require('express-validator/check');
 const {sanitizeBody, sanitizeQuery} = require('express-validator/filter');
+const types = require('./util/types');
 
 const port = process.env.PORT || 4000;
 
@@ -141,94 +142,128 @@ app.post('/update_bike_user', ensureEndString, (req, res) => {
         });
 });
 
-app.post('/start_bike_user', ensureEndString, (req, res) => {
-
-    const BuildUserBikeModel = {
-
-        embg: req.body.embg,
-        bike_id: req.body.bike_id,
-        longitude: req.body.longitude / Math.pow(10, 6),
-        latitude: req.body.latitude / Math.pow(10, 6)
-
-    };
-
-    CBike.findOne({embg: BuildUserBikeModel.embg})
-        .populate('bike_id')
-        .then(result => {
-            if (!result) {
-                Bike.findOne({bike_id: BuildUserBikeModel.bike_id})
-                    .then(bike => {
-                        BuildUserBikeModel.bike_id = bike._id;
-                        new CBike(BuildUserBikeModel)
-                            .save()
-                            .then(bikeUserModel => res.send("The bike has started"))
-                            .catch(err => res.status(503).send("An error occurred"));
-                    })
-                    .catch(err => res.status(503).send('An error occurred'));
-            } else {
-                if (result.embg === BuildUserBikeModel.embg)
-                    res.send('The user has already started the bike');
-                else
-                    res.send('Another user already uses the bike');
-            }
-        })
-        .catch(err => res.status(503).send("An error occurred"));
-});
-
-app.post('/find_user', ensureEndString,
+app.post('/start_bike_user', ensureEndString,
     [
         body('embg')
             .isLength({min: 13, max: 13})
             .withMessage('Must be 13 characters long'),
         body('bike_id')
             .isNumeric()
-            .withMessage('Must be a number')
+            .withMessage('Must be a number'),
+        body('longitude')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .toInt(),
+        body('latitude')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .toInt(),
+
     ]
-    ,(req, res) => {
+    , (req, res) => {
 
-    const errors = validationResult(req);
+        types(req.body);
+        const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        console.log(errors.array());
-        return res.status(400).send('Not valid parameters');
-    }
+        if (!errors.isEmpty()) {
+            console.log(errors.array());
+            return res.status(400).send('Not valid parameters');
+        }
 
-    const embg = req.body.embg;
-    const bike_id = req.body.bike_id;
+        const BuildUserBikeModel = {
 
-    if (embg.length === 13) {
-        User.findOne({embg: `${embg}`})
-            .then(user => {
-                if (!user) return res.status(404).send('The User does not exist');
+            embg: req.body.embg,
+            bike_id: req.body.bike_id,
+            longitude: req.body.longitude / Math.pow(10, 6),
+            latitude: req.body.latitude / Math.pow(10, 6)
 
-                if (user.credits >= 50) {
-                    Bike.findOne({bike_id: bike_id})
+        };
+
+        CBike.findOne({embg: BuildUserBikeModel.embg})
+            .populate('bike_id')
+            .then(result => {
+                if (!result) {
+                    Bike.findOne({bike_id: BuildUserBikeModel.bike_id})
                         .then(bike => {
-                            console.log(bike);
-                            if (!bike) return res.status(503).send('The bike doesn\'t exist');
-
-                            if (bike.stationParams.onStation) {
-
-                                bike.started = true;
-                                bike.save()
-                                    .then(bk => res.send('The station will open the bike in the next few seconds'))
-                                    .catch(err => res.status(503).send('An error occurred'));
-                            } else {
-                                bike.started = true;
-                                bike.save()
-                                    .then(bk => res.send('[1]'))
-                                    .catch(err => res.status(503).send('An error occurred'));
-                            }
+                            BuildUserBikeModel.bike_id = bike._id;
+                            new CBike(BuildUserBikeModel)
+                                .save()
+                                .then(bikeUserModel => res.send("The bike has started"))
+                                .catch(err => res.status(503).send("An error occurred"));
                         })
-                        .catch(err => res.status(503).send('An error has occurred'));
-                } else
-                    res.send("The user has insufficient credits");
+                        .catch(err => res.status(503).send('An error occurred'));
+                } else {
+                    if (result.embg === BuildUserBikeModel.embg)
+                        res.send('The user has already started the bike');
+                    else
+                        res.send('Another user already uses the bike');
+                }
             })
             .catch(err => res.status(503).send("An error occurred"));
-    } else {
-        res.send("Invalid embg");
-    }
-});
+    });
+
+app.post('/find_user', ensureEndString,
+    [
+        body('embg')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .isLength({min: 13, max: 13})
+            .withMessage('Must be 13 characters long'),
+        body('bike_id')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
+            .isNumeric()
+            .withMessage('Must be a number')
+    ]
+    , (req, res) => {
+
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            console.log(errors.array());
+            return res.status(400).send('Not valid parameters');
+        }
+
+        const embg = req.body.embg;
+        const bike_id = req.body.bike_id;
+
+        if (embg.length === 13) {
+            User.findOne({embg: `${embg}`})
+                .then(user => {
+                    if (!user) return res.status(404).send('The User does not exist');
+
+                    if (user.credits >= 50) {
+                        Bike.findOne({bike_id: bike_id})
+                            .then(bike => {
+                                console.log(bike);
+                                if (!bike) return res.status(503).send('The bike doesn\'t exist');
+
+                                if (bike.stationParams.onStation) {
+
+                                    bike.started = true;
+                                    bike.save()
+                                        .then(bk => res.send('The station will open the bike in the next few seconds'))
+                                        .catch(err => res.status(503).send('An error occurred'));
+                                } else {
+                                    bike.started = true;
+                                    bike.save()
+                                        .then(bk => res.send('[1]'))
+                                        .catch(err => res.status(503).send('An error occurred'));
+                                }
+                            })
+                            .catch(err => res.status(503).send('An error has occurred'));
+                    } else
+                        res.send("The user has insufficient credits");
+                })
+                .catch(err => res.status(503).send("An error occurred"));
+        } else {
+            res.send("Invalid embg");
+        }
+    });
 
 app.get('/check',
     [
@@ -268,12 +303,21 @@ app.get('/check',
 app.post('/save_bike', ensureEndString,
     [
         body('bike_id')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isNumeric()
             .withMessage('Must be a number'),
         body('onStation')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isBoolean()
             .withMessage('Must be a true/false value'),
         body('slot')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isNumeric()
             .withMessage('Must be a numeric value')
     ]
@@ -305,12 +349,21 @@ app.post('/save_bike', ensureEndString,
 app.post('/save_user', ensureEndString,
     [
         body('embg')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isLength({min: 13, max: 13})
             .withMessage('Must be 13 characters long and is Required'),
         body('firstname')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isLength({min: 3, max: 30})
             .withMessage('First name must be between 3 and 30 characters and is Required'),
         body('lastname')
+            .not()
+            .isEmpty()
+            .withMessage('Required')
             .isLength({min: 3, max: 50})
             .withMessage('Last name must be between 3 and 50 characters and is Required'),
         sanitizeBody('credits')

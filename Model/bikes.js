@@ -18,11 +18,13 @@ const BikeSchema = new Schema({
         },
 
         station: {
-            type: String
+            type: String,
+            required: true
         },
 
         slot: {
-            type: Number
+            type: Number,
+            required: true
         }
     },
 
