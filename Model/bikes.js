@@ -5,7 +5,9 @@ const BikeSchema = new Schema({
 
     bike_id: {
         type: String,
-        required: true
+        required: true,
+        index: true,
+        unique: true
     },
 
     stationParams: {

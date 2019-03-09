@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
+const {check, validationResult} = require('express-validator/check');
 
 const port = process.env.PORT || 4000;
 
@@ -45,7 +46,9 @@ app.post('/pay', ensureEndString, (req, res) => {
     const Pay = {
         extra: req.body.extra,
         onStation: req.body.onStation,
-        bike_id: req.body.bike_id
+        bike_id: req.body.bike_id,
+        station: req.body.station,
+        slot: parseInt(req.body.slot)
     };
 
     console.log(typeof Pay.bike_id);
@@ -81,6 +84,20 @@ app.post('/pay', ensureEndString, (req, res) => {
                                         .save()
                                         .then(pbike => {
                                             console.log('asdfasdfasf');
+                                            if (Pay.onStation) {
+                                                Bike.findOne({bike_id: currentBike.bike_id})
+                                                    .then(bike => {
+                                                        updateBikeCreds = {
+                                                            ...bike,
+                                                            started: false,
+                                                            stationParams: {
+                                                                ...bike.stationParams,
+                                                                onStation: true
+                                                            }
+                                                        };
+                                                    })
+                                                    .catch(err => res.send(err));
+                                            }
                                             CBike.deleteOne({bike_id: bike._id})
                                                 .then(cbike => res.send("The user has ended the bike session"))
                                                 .catch(err => res.send("An error occurred"));
@@ -171,19 +188,20 @@ app.post('/find_user', ensureEndString, (req, res) => {
                     Bike.findOne({bike_id: bike_id})
                         .then(bike => {
                             console.log(bike);
-                            if (!bike) return res.status(503).send("The bike doesn't exist");
+                            if (!bike) return res.status(503).send('The bike doesn\'t exist');
 
                             if (bike.stationParams.onStation) {
 
                                 bike.started = true;
                                 bike.save()
+                                    .then(bk => res.send('The station will open the bike in the next few seconds'))
                                     .catch(err => res.status(503).send('An error occurred'));
-
-                                res.send('The station will open the bike in the next few seconds');
-
-
-                            } else
-                                return res.send('[1]');
+                            } else {
+                                bike.started = true;
+                                bike.save()
+                                    .then(bk => res.send('[1]'))
+                                    .catch(err => res.status(503).send('An error occurred'));
+                            }
                         })
                         .catch(err => res.status(503).send('An error has occurred'));
                 } else
@@ -202,7 +220,7 @@ app.get('/check', (req, res) => {
             if (!bikeArray[0])
                 return res.status(404).send('The bike isn\'t at the station');
 
-            if(bikeArray[0].stationParams.onStation) {
+            if (bikeArray[0].stationParams.onStation) {
                 if (bikeArray[0].started) {
                     bikeArray[0].stationParams.onStation = false;
                     bikeArray[0].save()
@@ -212,8 +230,7 @@ app.get('/check', (req, res) => {
                     res.send('[1]');
                 } else
                     res.send('[0]');
-            }
-            else
+            } else
                 res.send('[0]');
         });
 });
@@ -237,23 +254,35 @@ app.post('/save_bike', ensureEndString, (req, res) => {
 });
 
 
-app.post('/save_user', ensureEndString, (req, res) => {
+app.post('/save_user',
+    [
+        check('embg').isLength({min: 13, max: 13}).withMessage('must be 13 characters long'),
+        check('firstname').isLength({min: 3}),
+        check('lastname').isLength({min: 3})
+    ],
+    ensureEndString, (req, res) => {
 
-    const newUser = {
-        embg: req.body.embg,
-        name: req.body.firstname,
-        lastname: req.body.lastname,
-        credits: req.body.credits,
-    };
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.log(arr);
+            return res.status(400).send('Not valid parameters');
+        }
 
-    new User(newUser)
-        .save()
-        .then(user => {
-            res.send(user);
-        })
-        .catch(err => console.log(err));
+        const newUser = {
+            embg: req.body.embg,
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
+            credits: req.body.credits,
+        };
 
-});
+        new User(newUser)
+            .save()
+            .then(user => {
+                res.send(user);
+            })
+            .catch(err => res.status(503).send('An error occurred'));
+
+    });
 
 app.get('/get_all', (req, res) => {
 
