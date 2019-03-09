@@ -143,7 +143,7 @@ app.post('/update_bike_user', ensureEndString,
             return res.status(400).send('Not valid parameters');
         }
 
-        types(req.body);
+        console.log(types(req.body));
 
         let latitudeUpdate = req.body.latitude / Math.pow(10, 6);
         let longitudeUpdate = req.body.longitude / Math.pow(10, 6);
@@ -199,7 +199,7 @@ app.post('/start_bike_user', ensureEndString,
             console.log(errors.array());
             return res.status(400).send('Not valid parameters');
         }
-        types(req.body);
+        console.log(types(req.body));
         const BuildUserBikeModel = {
 
             embg: req.body.embg,
@@ -249,7 +249,7 @@ app.post('/find_user', ensureEndString,
     ]
     , (req, res) => {
 
-        types(req.body);
+        console.log(types(req.body));
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -301,7 +301,7 @@ app.get('/check',
     ],
     (req, res) => {
 
-        types(req.query);
+        console.log(types(req.query));
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -355,7 +355,7 @@ app.post('/save_bike', ensureEndString,
             .toInt()
     ]
     , (req, res) => {
-        types(req.body);
+        console.log(types(req.body));
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors.array());
@@ -402,7 +402,7 @@ app.post('/save_user', ensureEndString,
         sanitizeBody('credits')
             .toInt()
     ], (req, res) => {
-        types(req.body);
+        console.log(types(req.body));
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors.array());
