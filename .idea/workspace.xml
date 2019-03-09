@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a0ca76c0-2e74-4fb4-9f08-0c7607b0a46d" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/util/types.js" beforeDir="false" afterPath="$PROJECT_DIR$/util/types.js" afterDir="false" />
     </list>
@@ -31,8 +32,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="145" column="26" selection-start-line="145" selection-start-column="20" selection-end-line="145" selection-end-column="26" />
+            <state relative-caret-position="254">
+              <caret line="405" column="36" selection-start-line="405" selection-start-column="36" selection-end-line="405" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -40,8 +41,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/util/types.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="572">
-              <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+            <state relative-caret-position="520">
+              <caret line="20" column="52" selection-start-line="20" selection-start-column="52" selection-end-line="20" selection-end-column="52" />
             </state>
           </provider>
         </entry>
@@ -49,7 +50,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Model/bikes.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
+            <state relative-caret-position="676">
               <caret line="26" column="26" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="26" />
             </state>
           </provider>
@@ -105,6 +106,7 @@
       <find>types</find>
       <find>console.log(type</find>
       <find>types(</find>
+      <find>['a</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -165,6 +167,11 @@
             <path>
               <item name="tranquil-garden-38323" type="b2602c69:ProjectViewProjectNode" />
               <item name="tranquil-garden-38323" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tranquil-garden-38323" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tranquil-garden-38323" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="tranquil-garden-38323" type="b2602c69:ProjectViewProjectNode" />
@@ -263,12 +270,12 @@
       <workItem from="1551743792575" duration="3901000" />
       <workItem from="1551786958859" duration="3550000" />
       <workItem from="1552140676528" duration="6547000" />
-      <workItem from="1552147234686" duration="3245000" />
+      <workItem from="1552147234686" duration="4856000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="174277000" />
+    <option name="totallyTimeSpent" value="175888000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -281,7 +288,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="27" width="1853" height="1053" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" sideWeight="0.50402147" side_tool="true" weight="0.1546448" />
       <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49597856" visible="true" weight="0.17923497" />
@@ -362,20 +368,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config/endStrings.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="52">
-          <caret line="2" column="26" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Model/bikes.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="26" column="26" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Model/current_bike.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="78">
@@ -390,17 +382,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/config/endStrings.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="52">
+          <caret line="2" column="35" selection-start-line="2" selection-start-column="35" selection-end-line="2" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Model/bikes.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="676">
+          <caret line="26" column="26" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="145" column="26" selection-start-line="145" selection-start-column="20" selection-end-line="145" selection-end-column="26" />
+        <state relative-caret-position="254">
+          <caret line="405" column="36" selection-start-line="405" selection-start-column="36" selection-end-line="405" selection-end-column="36" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/util/types.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="572">
-          <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+        <state relative-caret-position="520">
+          <caret line="20" column="52" selection-start-line="20" selection-start-column="52" selection-end-line="20" selection-end-column="52" />
         </state>
       </provider>
     </entry>
