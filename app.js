@@ -235,36 +235,60 @@ app.get('/check', (req, res) => {
         });
 });
 
-app.post('/save_bike', ensureEndString, (req, res) => {
+app.post('/save_bike',
+    [
+        check('bike_id')
+            .isNumeric()
+            .withMessage('Must be a number'),
+        check('onStation')
+            .isBoolean()
+            .withMessage('Must be a true/false value'),
+        check('slot')
+            .isNumeric()
+            .withMessage('Must be a numeric value')
+    ]
+    , ensureEndString, (req, res) => {
 
-    const newBike = {
-        bike_id: req.body.bike_id,
-        stationParams: {
-            onStation: req.body.onStation === '1',
-            station: req.body.station,
-            slot: req.body.slot
+        const errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            console.log(errors.array());
+            return res.status(400).send('Not valid parameters');
         }
-    };
 
-    new Bike(newBike)
-        .save()
-        .then(bike => res.json({msg: '/POST bike has been added'}))
-        .catch(err => res.status(503).send('An error has occurred'));
+        const newBike = {
+            bike_id: req.body.bike_id,
+            stationParams: {
+                onStation: req.body.onStation === '1',
+                station: req.body.station,
+                slot: req.body.slot
+            }
+        };
 
-});
+        new Bike(newBike)
+            .save()
+            .then(bike => res.json({msg: '/POST bike has been added'}))
+            .catch(err => res.status(503).send('An error has occurred'));
+
+    });
 
 
 app.post('/save_user',
     [
-        check('embg').isLength({min: 13, max: 13}).withMessage('must be 13 characters long'),
-        check('firstname').isLength({min: 3}),
-        check('lastname').isLength({min: 3})
+        check('embg')
+            .isLength({min: 13, max: 13})
+            .withMessage('Must be 13 characters long and is Required'),
+        check('firstname')
+            .isLength({min: 3, max: 30})
+            .withMessage('First name must be between 3 and 30 characters and is Required'),
+        check('lastname')
+            .isLength({min: 3, max: 50})
+            .withMessage('Last name must be between 3 and 50 characters and is Required')
     ],
     ensureEndString, (req, res) => {
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            console.log(arr);
+            console.log(errors.array());
             return res.status(400).send('Not valid parameters');
         }
 
