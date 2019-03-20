@@ -101,7 +101,7 @@ app.post('/pay', ensureEndString,
 
                         User.findOne({embg: currentBike.embg})
                             .then(user => {
-                                user.credits = parseInt(user.credits) - (parseInt(diff) + 1) * 30 - parseInt(Pay.extra);
+                                user.credits = user.credits - (diff + 1) * 30 - Pay.extra;
                                 currentBike.endTime = endTime;
 
                                 new User(user)
@@ -169,7 +169,6 @@ app.post('/update_bike_user', ensureEndString,
     , (req, res) => {
 
         const errors = validationResult(req);
-
         if (!errors.isEmpty()) {
             console.log(errors.array());
             return res.status(400).send('Not valid parameters');
@@ -298,48 +297,49 @@ app.post('/find_user', ensureEndString,
         const embg = req.body.embg;
         const bike_id = req.body.bike_id;
 
-        if (embg.length === 13) {
-            User.findOne({embg: `${embg}`})
-                .then(user => {
-                    if (!user) return res.status(404).send('The User does not exist');
+        // if (embg.length === 13) {
+        User.findOne({embg: `${embg}`})
+            .then(user => {
+                if (!user) return res.status(404).send('The User does not exist');
 
-                    if (user.credits >= 50) {
-                        Bike.findOne({bike_id: bike_id})
-                            .then(bike => {
-                                console.log(bike);
-                                if (!bike) return res.status(503).send('The bike doesn\'t exist');
+                if (user.credits >= 50) {
+                    Bike.findOne({bike_id: bike_id})
+                        .then(bike => {
+                            console.log(bike);
+                            if (!bike) return res.status(503).send('The bike doesn\'t exist');
 
-                                if (bike.stationParams.onStation) {
+                            if (bike.stationParams.onStation) {
 
-                                    bike.started = true;
-                                    bike.save()
-                                        .then(bk => res.send('The station will open the bike in the next few seconds'))
-                                        .catch(err => res.status(503).send('An error occurred'));
-                                } else {
-                                    bike.started = true;
-                                    bike.save()
-                                        .then(bk => res.send('[1]'))
-                                        .catch(err => res.status(503).send('An error occurred'));
-                                }
-                            })
-                            .catch(err => res.status(503).send('An error has occurred'));
-                    } else
-                        res.send("The user has insufficient credits");
-                })
-                .catch(err => res.status(503).send("An error occurred"));
-        } else {
-            res.send("Invalid embg");
-        }
+                                bike.started = true;
+                                bike.save()
+                                    .then(bk => res.send('The station will open the bike in the next few seconds'))
+                                    .catch(err => res.status(503).send('An error occurred'));
+                            } else {
+                                bike.started = true;
+                                bike.save()
+                                    .then(bk => res.send('[1]'))
+                                    .catch(err => res.status(503).send('An error occurred'));
+                            }
+                        })
+                        .catch(err => res.status(503).send('An error has occurred'));
+                } else
+                    res.send("The user has insufficient credits");
+            })
+            .catch(err => res.status(503).send("An error occurred"));
+        // } else {
+        //     res.send("Invalid embg");
+        // }
     });
 
-app.get('/check',
+app.post('/check',
     [
-        sanitizeQuery('slot')
+        sanitizeBody('slot')
             .toInt()
     ],
     (req, res) => {
 
-        console.log(types(req.query));
+        console.log(types(req.body));
+        console.log(req.body);
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -349,7 +349,7 @@ app.get('/check',
 
         Bike.find()
             .then(bikes => {
-                const bikeArray = bikes.filter(bike => bike.stationParams.station === req.query.station && bike.stationParams.slot === req.query.slot);
+                const bikeArray = bikes.filter(bike => bike.stationParams.station === req.body.station && bike.stationParams.slot === req.body.slot);
                 if (!bikeArray[0])
                     return res.status(404).send('The bike isn\'t at the station');
 

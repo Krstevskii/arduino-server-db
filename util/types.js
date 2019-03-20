@@ -19,6 +19,5 @@ module.exports = (data) => {
             break;
         default:
             return data === null ? null : data.toString() + ': ' + typeof data;
-
     }
 };
