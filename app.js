@@ -362,9 +362,9 @@ app.post('/check',
 
                         res.send('[1]');
                     } else
-                        res.send('[0]');
+                        res.send('[1]');
                 } else
-                    res.send('[0]');
+                    res.send('[1]');
             });
     });
 
