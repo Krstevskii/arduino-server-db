@@ -82,11 +82,12 @@ app.post('/pay', ensureEndString,
         };
 
         console.log(types(req.body));
+        console.log(types(Pay));
         console.log(Pay);
 
         Bike.findOne({bike_id: Pay.bike_id})
             .then(bike => {
-                bike.onStation = Pay.onStation;
+                bike.stationParams.onStation = Pay.onStation;
                 bike.stationParams.slot = Pay.slot;
                 bike.stationParams.station = Pay.station;
                 bike.started = false;
@@ -113,11 +114,10 @@ app.post('/pay', ensureEndString,
                                     .then(user => {
                                         new PastBike({
                                             ...currentBike._doc,
-                                            onStation: Pay.onStation === '1'
+                                            onStation: Pay.onStation
                                         })
                                             .save()
                                             .then(pbike => {
-                                                console.log('asdfasdfasf');
                                                 if (Pay.onStation) {
                                                     Bike.findOne({bike_id: currentBike.bike_id})
                                                         .then(bike => {
