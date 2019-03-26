@@ -103,7 +103,7 @@ app.post('/pay', ensureEndString,
                         let diff = endTime.diff(startTime, null, true);
 
                         diff = moment.utc(diff).format('HH:mm:ss').split(':');
-
+                        diff = diff[0];
                         User.findOne({embg: currentBike.embg})
                             .then(user => {
                                 user.credits = user.credits - (diff + 1) * 30 - Pay.extra;
@@ -112,26 +112,14 @@ app.post('/pay', ensureEndString,
                                 new User(user)
                                     .save()
                                     .then(user => {
+                                        console.log('asdfasdfasdfasdfsa');
+
                                         new PastBike({
                                             ...currentBike._doc,
                                             onStation: Pay.onStation
                                         })
                                             .save()
                                             .then(pbike => {
-                                                if (Pay.onStation) {
-                                                    Bike.findOne({bike_id: currentBike.bike_id})
-                                                        .then(bike => {
-                                                            updateBikeCreds = {
-                                                                ...bike,
-                                                                started: false,
-                                                                stationParams: {
-                                                                    ...bike.stationParams,
-                                                                    onStation: true
-                                                                }
-                                                            };
-                                                        })
-                                                        .catch(err => res.send(err));
-                                                }
                                                 CBike.deleteOne({bike_id: bike._id})
                                                     .then(cbike => {
                                                         console.log('asdfasdf');
@@ -141,13 +129,14 @@ app.post('/pay', ensureEndString,
                                             })
                                             .catch(err => res.status(503).send(err));
                                     })
-                                    .catch(err => res.status(503).send("An error occurred"));
+                                    .catch(err => res.status(503).send("An User error occurred"));
                             })
                             .catch(err => res.status(503).send('An error occurred'));
                     })
             })
             .catch(err => res.status(503).send('An error occurred'));
-    });
+    })
+;
 
 app.post('/update_bike_user', ensureEndString,
     [
