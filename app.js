@@ -78,11 +78,10 @@ app.post('/pay', ensureEndString,
             onStation: req.body.onStation,
             bike_id: req.body.bike_id,
             station: req.body.station,
-            slot: parseInt(req.body.slot)
+            slot: req.body.slot
         };
 
-        console.log(typeof Pay.bike_id);
-        console.log(req.body);
+        console.log(types(req.body));
 
         Bike.findOne({bike_id: Pay.bike_id})
             .then(bike => {
