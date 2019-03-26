@@ -74,24 +74,29 @@ app.post('/pay', ensureEndString,
     , (req, res) => {
 
         const Pay = {
-            extra: req.body.extra,
+            extra: req.body.extra === undefined ? 0 : req.body.extra,
             onStation: req.body.onStation,
             bike_id: req.body.bike_id,
-            station: req.body.station,
-            slot: req.body.slot
+            station: req.body.station === undefined ? 'None' : req.body.station,
+            slot: req.body.slot === undefined ? -1 : req.body.slot
         };
 
         console.log(types(req.body));
+        console.log(Pay);
 
         Bike.findOne({bike_id: Pay.bike_id})
             .then(bike => {
-                bike.onStation = Pay.onStation === '1';
+                bike.onStation = Pay.onStation;
+                bike.stationParams.slot = Pay.slot;
+                bike.stationParams.station = Pay.station;
+                bike.started = false;
                 bike.save()
                     .catch(err => res.status(503).send('An error occurred'));
 
                 CBike.findOne({bike_id: bike._id})
                     .then(currentBike => {
                         if (!currentBike) return res.status(404).send('The current user doesn\'t exist');
+
                         const endTime = moment.tz(moment(Date.now()).format(), 'Europe/Skopje');
                         const startTime = moment.tz(currentBike.startTime, "Europe/Skopje");
                         let diff = endTime.diff(startTime, null, true);
