@@ -135,7 +135,7 @@ app.post('/pay', ensureEndString,
                                                 CBike.deleteOne({bike_id: bike._id})
                                                     .then(cbike => {
                                                         console.log('asdfasdf');
-                                                        res.send("The user has ended the bike session")
+                                                        return res.send("The user has ended the bike session")
                                                     })
                                                     .catch(err => res.send("An error occurred"));
                                             })
